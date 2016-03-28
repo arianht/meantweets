@@ -18,6 +18,7 @@ const (
 type Dao interface {
 	WriteCelebrityTweet(celebrtityName string, tweetContents string)
 	GetCelebrityTweets(celebrtityName string) (tweets []string)
+	DeleteAllTweetsForCelebrity(celebrityName string)
 }
 
 // A DAO for interacting with App Engine's Datastore.
@@ -59,4 +60,17 @@ func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrtityName string) (twee
 		}
 	}
 	return
+}
+
+// Deletes all tweets for a provided celebirty name.
+func (datastoreDao DatastoreDao) DeleteAllTweetsForCelebrity(celebrtityName string) {
+	q := datastore.NewQuery(datastoreKind).
+		Filter("CelebrityName = ", celebrtityName).
+		KeysOnly()
+	keys, err := q.GetAll(datastoreDao.Ctx, nil)
+	if err != nil {
+		fmt.Printf("Error reading the database: %v\n", err)
+		return
+	}
+	datastore.DeleteMulti(datastoreDao.Ctx, keys)
 }

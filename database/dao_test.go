@@ -44,6 +44,14 @@ func TestDatastoreDao(t *testing.T) {
 	if tweets, expected := nameTwoTweets, []string{"tweet_three"}; !checkContentsOfTweets(tweets, expected) {
 		t.Errorf("Expected tweet content for name_two is %v, but was %v", expected, tweets)
 	}
+
+	dao.DeleteAllTweetsForCelebrity("name")
+	time.Sleep(1 * time.Second)
+	nameTweetsAfterDelete := dao.GetCelebrityTweets("name")
+
+	if tweetCount, expected := len(nameTweetsAfterDelete), 0; tweetCount != expected {
+		t.Errorf("Expected tweet count is %d, but was %d", expected, tweetCount)
+	}
 }
 
 // Returns true if tweets and expectedTweets have the same contents (order agnostic).
