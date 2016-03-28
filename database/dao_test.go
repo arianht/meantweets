@@ -11,6 +11,13 @@ import (
 // A simple DatastoreDao test that writes data and verifies reading.
 // Requires "goapp test" for execution.
 func TestDatastoreDao(t *testing.T) {
+	johnTweetOne := database.Tweet{"John", 0, 500}
+	johnTweetTwo := database.Tweet{"John", 1, 12}
+	jenTweetOne := database.Tweet{"Jen", 2, 750}
+	jenTweetTwo := database.Tweet{"Jen", 3, 500}
+	jenTweetThree := database.Tweet{"Jen", 4, 300}
+	jenTweetFour := database.Tweet{"Jen", 5, 751}
+
 	ctx, done, err := aetest.NewContext()
 	if err != nil {
 		t.Fatal(err)
@@ -18,44 +25,42 @@ func TestDatastoreDao(t *testing.T) {
 	defer done()
 
 	dao := database.DatastoreDao{ctx}
-	dao.WriteCelebrityTweet("name", "tweet")
-	dao.WriteCelebrityTweet("name", "tweet") // Write a duplicate.
-	dao.WriteCelebrityTweet("name", "tweet_two")
-	dao.WriteCelebrityTweet("name_two", "tweet_three")
+	dao.WriteCelebrityTweet(johnTweetOne)
+	dao.WriteCelebrityTweet(johnTweetOne) // Write a duplicate.
+	dao.WriteCelebrityTweet(johnTweetTwo)
+	dao.WriteCelebrityTweet(jenTweetOne)
+	dao.WriteCelebrityTweet(jenTweetTwo)
+	dao.WriteCelebrityTweet(jenTweetThree)
+	dao.WriteCelebrityTweet(jenTweetFour)
 
 	// Sadly, App Engine Datastore takes time to fully write. Without this sleep,
 	// the write won't be done in time for the read.
-	time.Sleep(1 * time.Second)
+	time.Sleep(2 * time.Second)
 
-	nameTweets := dao.GetCelebrityTweets("name")
+	johnTweets := dao.GetCelebrityTweets("John")
 
-	if tweetCount, expected := len(nameTweets), 2; tweetCount != expected {
-		t.Errorf("Expected tweet count is %d, but was %d", expected, tweetCount)
+	if tweetCount, expected := len(johnTweets), 2; tweetCount != expected {
+		t.Errorf("Expected tweet count for John is %d, but was %d", expected, tweetCount)
 	}
-	if tweets, expected := nameTweets, []string{"tweet", "tweet_two"}; !checkContentsOfTweets(tweets, expected) {
-		t.Errorf("Expected tweet content for name is %v, but was %v", expected, tweets)
+	if tweets, expected := johnTweets, []database.Tweet{johnTweetOne, johnTweetTwo}; !reflect.DeepEqual(tweets, expected) {
+		t.Errorf("Expected tweet content for John is %v, but was %v", expected, tweets)
 	}
 
-	nameTwoTweets := dao.GetCelebrityTweets("name_two")
+	jenTweets := dao.GetCelebrityTweets("Jen")
 
-	if tweetCount, expected := len(nameTwoTweets), 1; tweetCount != expected {
-		t.Errorf("Expected tweet count is %d, but was %d", expected, tweetCount)
+	if tweetCount, expected := len(jenTweets), 4; tweetCount != expected {
+		t.Errorf("Expected tweet count for Jen is %d, but was %d", expected, tweetCount)
 	}
-	if tweets, expected := nameTwoTweets, []string{"tweet_three"}; !checkContentsOfTweets(tweets, expected) {
-		t.Errorf("Expected tweet content for name_two is %v, but was %v", expected, tweets)
-	}
-}
 
-// Returns true if tweets and expectedTweets have the same contents (order agnostic).
-// False, otherwise.
-func checkContentsOfTweets(tweets, expectedTweets []string) bool {
-	tweetSet := make(map[string]int)
-	for _, tweet := range tweets {
-		tweetSet[tweet]++
+	if tweets, expected := jenTweets, []database.Tweet{jenTweetFour, jenTweetOne, jenTweetTwo, jenTweetThree}; !reflect.DeepEqual(tweets, expected) {
+		t.Errorf("Expected tweet content for Jen is %v, but was %v", expected, tweets)
 	}
-	expectedTweetSet := make(map[string]int)
-	for _, tweet := range expectedTweets {
-		expectedTweetSet[tweet]++
+
+	dao.DeleteAllTweetsForCelebrity("John")
+	time.Sleep(2 * time.Second)
+	johnTweetsAfterDelete := dao.GetCelebrityTweets("John")
+
+	if tweetCount, expected := len(johnTweetsAfterDelete), 0; tweetCount != expected {
+		t.Errorf("Expected tweet count for John after delete is %d, but was %d", expected, tweetCount)
 	}
-	return reflect.DeepEqual(tweetSet, expectedTweetSet)
 }

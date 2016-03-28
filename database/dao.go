@@ -16,8 +16,9 @@ const (
 
 // The data access object that abstracts database interactions.
 type Dao interface {
-	WriteCelebrityTweet(celebrtityName string, tweetContents string)
-	GetCelebrityTweets(celebrtityName string) (tweets []string)
+	WriteCelebrityTweet(tweet Tweet)
+	GetCelebrityTweets(celebrtityName string) (tweets []Tweet)
+	DeleteAllTweetsForCelebrity(celebrityName string)
 }
 
 // A DAO for interacting with App Engine's Datastore.
@@ -26,37 +27,52 @@ type DatastoreDao struct {
 }
 
 // A tweet entity for storing data in the datastore.
-type tweet struct {
+type Tweet struct {
 	CelebrityName string
-	Contents      string
+	Id            int64
+	Score         int32
 }
 
 // Saves the celebrityName, tweetContents pair to the datastore. Note that duplicates aren't
 // caught here because of writing asynchronicity.
-func (datastoreDao DatastoreDao) WriteCelebrityTweet(celebrtityName string, tweetContents string) {
-	cebTweet := &tweet{celebrtityName, tweetContents}
+func (datastoreDao DatastoreDao) WriteCelebrityTweet(tweet Tweet) {
 	key := datastore.NewIncompleteKey(datastoreDao.Ctx, datastoreKind, nil)
-	if _, err := datastore.Put(datastoreDao.Ctx, key, cebTweet); err != nil {
+	if _, err := datastore.Put(datastoreDao.Ctx, key, &tweet); err != nil {
 		fmt.Printf("Error writing to database: %v\n", err)
 		return
 	}
 }
 
-// Retrieves all the celebrity tweets related to a celebrity. Duplicate tweets
-// will be filtered out.
-func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrtityName string) (tweets []string) {
-	q := datastore.NewQuery(datastoreKind).Filter("CelebrityName = ", celebrtityName)
-	var results []tweet
+// Retrieves all the celebrity tweets related to a celebrity sorted with highest scores first.
+// Duplicate tweets will be filtered out.
+func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrtityName string) (tweets []Tweet) {
+	q := datastore.NewQuery(datastoreKind).
+		Filter("CelebrityName = ", celebrtityName).
+		Order("-Score")
+	var results []Tweet
 	if _, err := q.GetAll(datastoreDao.Ctx, &results); err != nil {
 		fmt.Printf("Error reading the database: %v\n", err)
 		return
 	}
-	tweetSet := make(map[string]bool)
+	tweetSet := make(map[int64]bool)
 	for _, tweetResult := range results {
-		if !tweetSet[tweetResult.Contents] {
-			tweets = append(tweets, tweetResult.Contents)
-			tweetSet[tweetResult.Contents] = true
+		if !tweetSet[tweetResult.Id] {
+			tweets = append(tweets, tweetResult)
+			tweetSet[tweetResult.Id] = true
 		}
 	}
 	return
+}
+
+// Deletes all tweets for a provided celebirty name.
+func (datastoreDao DatastoreDao) DeleteAllTweetsForCelebrity(celebrtityName string) {
+	q := datastore.NewQuery(datastoreKind).
+		Filter("CelebrityName = ", celebrtityName).
+		KeysOnly()
+	keys, err := q.GetAll(datastoreDao.Ctx, nil)
+	if err != nil {
+		fmt.Printf("Error reading the database: %v\n", err)
+		return
+	}
+	datastore.DeleteMulti(datastoreDao.Ctx, keys)
 }
