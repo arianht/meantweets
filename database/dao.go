@@ -79,15 +79,15 @@ func (datastoreDao DatastoreDao) DeleteAllTweetsForCelebrity(celebrityName strin
 
 // Provide a mock Dao for unit tests of files that depend on a Dao.
 type DaoMock struct {
-	Tweets []Tweet
+	Tweets *[]Tweet // Use a pointer so all copies of DaoMock modify the same "database".
 }
 
 func (dao DaoMock) WriteCelebrityTweet(tweet Tweet) {
-	dao.Tweets = append(dao.Tweets, tweet)
+	*dao.Tweets = append(*dao.Tweets, tweet)
 }
 
 func (dao DaoMock) GetCelebrityTweets(celebrityName string) (tweets []Tweet) {
-	for _, tweet := range dao.Tweets {
+	for _, tweet := range *dao.Tweets {
 		if tweet.CelebrityName == celebrityName {
 			tweets = append(tweets, tweet)
 		}
@@ -96,5 +96,5 @@ func (dao DaoMock) GetCelebrityTweets(celebrityName string) (tweets []Tweet) {
 }
 
 func (dao DaoMock) DeleteAllTweetsForCelebrity(celebrityName string) {
-	dao.Tweets = nil
+	*dao.Tweets = nil
 }
