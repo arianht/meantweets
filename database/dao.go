@@ -76,3 +76,25 @@ func (datastoreDao DatastoreDao) DeleteAllTweetsForCelebrity(celebrityName strin
 	}
 	datastore.DeleteMulti(datastoreDao.Ctx, keys)
 }
+
+// Provide a mock Dao for unit tests of files that depend on a Dao.
+type DaoMock struct {
+	Tweets []Tweet
+}
+
+func (dao DaoMock) WriteCelebrityTweet(tweet Tweet) {
+	dao.Tweets = append(dao.Tweets, tweet)
+}
+
+func (dao DaoMock) GetCelebrityTweets(celebrityName string) (tweets []Tweet) {
+	for _, tweet := range dao.Tweets {
+		if tweet.CelebrityName == celebrityName {
+			tweets = append(tweets, tweet)
+		}
+	}
+	return
+}
+
+func (dao DaoMock) DeleteAllTweetsForCelebrity(celebrityName string) {
+	dao.Tweets = nil
+}
