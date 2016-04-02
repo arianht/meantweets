@@ -9,7 +9,7 @@ type SentimentAnalyzer interface {
 	GetScoreForTweet(tweet string) int
 }
 
-// Provide a mock Dao for unit tests of files that depend on a Dao.
+// Provide a mock SentimentAnalyzer for unit tests of files that depend on a SentimentAnalyzer.
 type sentimentAnalyzerMock struct {
 	scores map[string]int
 }

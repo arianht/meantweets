@@ -8,10 +8,11 @@ type TwitterFacade interface {
 	GetTweets(celebrity string) []string
 }
 
-type twitterFacadeMock struct {
-	tweets map[string][]string
+// Provide a mock TwitterFacade for unit tests of files that depend on a TwitterFacade.
+type TwitterFacadeMock struct {
+	Tweets map[string][]string
 }
 
-func (twitter twitterFacadeMock) GetTweets(celebrity string) []string {
-	return twitter.tweets[celebrity]
+func (twitter TwitterFacadeMock) GetTweets(celebrity string) []string {
+	return twitter.Tweets[celebrity]
 }
