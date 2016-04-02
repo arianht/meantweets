@@ -17,7 +17,7 @@ const (
 // The data access object that abstracts database interactions.
 type Dao interface {
 	WriteCelebrityTweet(tweet Tweet)
-	GetCelebrityTweets(celebrtityName string) (tweets []Tweet)
+	GetCelebrityTweets(celebrityName string) (tweets []Tweet)
 	DeleteAllTweetsForCelebrity(celebrityName string)
 }
 
@@ -45,9 +45,9 @@ func (datastoreDao DatastoreDao) WriteCelebrityTweet(tweet Tweet) {
 
 // Retrieves all the celebrity tweets related to a celebrity sorted with highest scores first.
 // Duplicate tweets will be filtered out.
-func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrtityName string) (tweets []Tweet) {
+func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrityName string) (tweets []Tweet) {
 	q := datastore.NewQuery(datastoreKind).
-		Filter("CelebrityName = ", celebrtityName).
+		Filter("CelebrityName = ", celebrityName).
 		Order("-Score")
 	var results []Tweet
 	if _, err := q.GetAll(datastoreDao.Ctx, &results); err != nil {
@@ -65,9 +65,9 @@ func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrtityName string) (twee
 }
 
 // Deletes all tweets for a provided celebirty name.
-func (datastoreDao DatastoreDao) DeleteAllTweetsForCelebrity(celebrtityName string) {
+func (datastoreDao DatastoreDao) DeleteAllTweetsForCelebrity(celebrityName string) {
 	q := datastore.NewQuery(datastoreKind).
-		Filter("CelebrityName = ", celebrtityName).
+		Filter("CelebrityName = ", celebrityName).
 		KeysOnly()
 	keys, err := q.GetAll(datastoreDao.Ctx, nil)
 	if err != nil {
