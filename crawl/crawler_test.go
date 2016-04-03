@@ -28,13 +28,12 @@ func TestCrawlBasicFlowWithEmptyDatabase(t *testing.T) {
 		},
 	}
 	twitterCrawler := crawl.TwitterCrawler{
-		Dao:         dao,
-		Twitter:     twitter,
-		Sentiment:   sentiment,
-		Celebrities: []string{"Johnny", "Emma"},
+		Dao:       dao,
+		Twitter:   twitter,
+		Sentiment: sentiment,
 	}
 
-	twitterCrawler.Crawl()
+	twitterCrawler.Crawl([]string{"Johnny", "Emma"})
 
 	expectedTweetsDatabase := []database.Tweet{
 		database.Tweet{
