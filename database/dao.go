@@ -1,5 +1,5 @@
 /*
-Package for reading and writing from the database. Perform all database
+Package database provides a means for reading and writing from the database. Perform all database
 operations through this package.
 */
 package database
@@ -14,26 +14,26 @@ const (
 	datastoreKind = "Tweet"
 )
 
-// The data access object that abstracts database interactions.
+// Dao defines the interface for the data access object that abstracts database interactions.
 type Dao interface {
 	WriteCelebrityTweet(tweet Tweet)
 	GetCelebrityTweets(celebrityName string) (tweets []Tweet)
 	DeleteAllTweetsForCelebrity(celebrityName string)
 }
 
-// A DAO for interacting with App Engine's Datastore.
+// DatastoreDao is a DAO for interacting with App Engine's Datastore.
 type DatastoreDao struct {
 	Ctx context.Context // App Engine Context which can be obtained from an HTTP request.
 }
 
-// A tweet entity for storing data in the datastore.
+// Tweet is an entity for storing data in the datastore.
 type Tweet struct {
 	CelebrityName string
 	Id            int64
 	Score         int32
 }
 
-// Saves the celebrityName, tweetContents pair to the datastore. Note that duplicates aren't
+// WriteCelebrityTweet saves the celebrityName, tweetContents pair to the datastore. Note that duplicates aren't
 // caught here because of writing asynchronicity.
 func (datastoreDao DatastoreDao) WriteCelebrityTweet(tweet Tweet) {
 	key := datastore.NewIncompleteKey(datastoreDao.Ctx, datastoreKind, nil)
@@ -43,7 +43,7 @@ func (datastoreDao DatastoreDao) WriteCelebrityTweet(tweet Tweet) {
 	}
 }
 
-// Retrieves all the celebrity tweets related to a celebrity sorted with highest scores first.
+// GetCelebrityTweets retrieves all the celebrity tweets related to a celebrity sorted with highest scores first.
 // Duplicate tweets will be filtered out.
 func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrityName string) (tweets []Tweet) {
 	q := datastore.NewQuery(datastoreKind).
@@ -64,7 +64,7 @@ func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrityName string) (tweet
 	return
 }
 
-// Deletes all tweets for a provided celebirty name.
+// DeleteAllTweetsForCelebrity deletes all tweets for a provided celebirty name.
 func (datastoreDao DatastoreDao) DeleteAllTweetsForCelebrity(celebrityName string) {
 	q := datastore.NewQuery(datastoreKind).
 		Filter("CelebrityName = ", celebrityName).
@@ -77,15 +77,17 @@ func (datastoreDao DatastoreDao) DeleteAllTweetsForCelebrity(celebrityName strin
 	datastore.DeleteMulti(datastoreDao.Ctx, keys)
 }
 
-// Provide a mock Dao for unit tests of files that depend on a Dao.
+// DaoMock provides a mock Dao for unit tests of files that depend on a Dao.
 type DaoMock struct {
 	Tweets *[]Tweet // Use a pointer so all copies of DaoMock modify the same "database".
 }
 
+// WriteCelebrityTweet implementation for DaoMock.
 func (dao DaoMock) WriteCelebrityTweet(tweet Tweet) {
 	*dao.Tweets = append(*dao.Tweets, tweet)
 }
 
+// GetCelebrityTweets implementation for DaoMock.
 func (dao DaoMock) GetCelebrityTweets(celebrityName string) (tweets []Tweet) {
 	for _, tweet := range *dao.Tweets {
 		if tweet.CelebrityName == celebrityName {
@@ -95,6 +97,7 @@ func (dao DaoMock) GetCelebrityTweets(celebrityName string) (tweets []Tweet) {
 	return
 }
 
+// DeleteAllTweetsForCelebrity implementation for DaoMock.
 func (dao DaoMock) DeleteAllTweetsForCelebrity(celebrityName string) {
 	*dao.Tweets = nil
 }

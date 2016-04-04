@@ -1,7 +1,3 @@
-/*
-Package for crawling for tweets, getting their sentiment score, and writing them
-to the database.
-*/
 package crawl
 
 import (
@@ -9,18 +5,19 @@ import (
 	"github.com/arianht/meantweets/database"
 )
 
-// A crawler for crawling celebrities.
+// Crawler is an interface for crawling celebrities.
 type Crawler interface {
 	Crawl(celebrities []string)
 }
 
+// TwitterCrawler implements Crawler and is used to crawl tweets about celebrities on Twitter.
 type TwitterCrawler struct {
 	Dao       database.Dao
 	Twitter   TwitterFacade
 	Sentiment SentimentAnalyzer
 }
 
-// Crawls twitter for mean tweets for a given celebrity and writes the results to
+// Crawl crawls Twitter for mean tweets for a given celebrity and writes the results to
 // the database.
 func (crawler TwitterCrawler) Crawl(celebrities []string) {
 	for _, celebrity := range celebrities {

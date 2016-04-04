@@ -1,5 +1,5 @@
 /*
-The main web server for Mean Tweets. Requires App Engine.
+Package server provides the main web server for Mean Tweets. Requires App Engine.
 
 Run locally with:
 goapp serve github.com/arianht/meantweets/server
