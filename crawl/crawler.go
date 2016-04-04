@@ -5,6 +5,7 @@ to the database.
 package crawl
 
 import (
+	"fmt"
 	"github.com/arianht/meantweets/database"
 )
 
@@ -23,12 +24,16 @@ type TwitterCrawler struct {
 // the database.
 func (crawler TwitterCrawler) Crawl(celebrities []string) {
 	for _, celebrity := range celebrities {
-		tweets := crawler.Twitter.GetTweets(celebrity)
+		tweets, err := crawler.Twitter.GetTweets(celebrity)
+		if err != nil {
+			fmt.Printf("Could not get tweets for celebrity %v: %v\n", celebrity, err)
+			continue
+		}
 		for _, tweet := range tweets {
 			crawler.Dao.WriteCelebrityTweet(database.Tweet{
 				CelebrityName: celebrity,
-				Id:            tweet.Id,
-				Score:         crawler.Sentiment.GetScoreForTweet(tweet.Content),
+				Id:            int64(tweet.Id()),
+				Score:         crawler.Sentiment.GetScoreForTweet(tweet.Text()),
 			})
 		}
 	}

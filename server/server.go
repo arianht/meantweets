@@ -2,7 +2,7 @@
 The main web server for Mean Tweets. Requires App Engine.
 
 Run locally with:
-goapp server github.com/arianht/meantweets/server
+goapp serve github.com/arianht/meantweets/server
 
 It will automatically detect changes in the code.
 
