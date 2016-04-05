@@ -27,7 +27,9 @@ func (twitterClient *TwitterClientMock) SendRequest(req *http.Request) (resp *tw
 }
 
 func TestGetTweets(t *testing.T) {
-	expectedReqURL := "/1.1/search/tweets.json?count=100&lang=en&q=fake+name&result_type=mixed"
+	var tweetsCount uint = 10
+	expectedReqURL := fmt.Sprintf("/1.1/search/tweets.json?count=%d&lang=en&q=fake+name&result_type=mixed",
+		tweetsCount)
 	expectedTweets := []twittergo.Tweet{
 		twittergo.Tweet{
 			"id_str": "716102930609209345",
@@ -46,7 +48,7 @@ func TestGetTweets(t *testing.T) {
 	twitterClient := TwitterClientMock{map[string]*twittergo.APIResponse{expectedReqURL: expectedResp}}
 
 	twitterFacade := crawl.NewTwitterFacadeWithClient(&twitterClient)
-	tweets, err := twitterFacade.GetTweets("fake name")
+	tweets, err := twitterFacade.GetTweets("fake name", tweetsCount)
 
 	if err != nil {
 		t.Fatalf("Expected nil error, but was %v", err)

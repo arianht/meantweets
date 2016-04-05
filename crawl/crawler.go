@@ -5,6 +5,8 @@ import (
 	"github.com/arianht/meantweets/database"
 )
 
+const tweetsPerRequest uint = 100
+
 // Crawler is an interface for crawling celebrities.
 type Crawler interface {
 	Crawl(celebrities []string)
@@ -21,7 +23,7 @@ type TwitterCrawler struct {
 // the database.
 func (crawler TwitterCrawler) Crawl(celebrities []string) {
 	for _, celebrity := range celebrities {
-		tweets, err := crawler.Twitter.GetTweets(celebrity)
+		tweets, err := crawler.Twitter.GetTweets(celebrity, tweetsPerRequest)
 		if err != nil {
 			fmt.Printf("Could not get tweets for celebrity %v: %v\n", celebrity, err)
 			continue
