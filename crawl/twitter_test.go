@@ -35,7 +35,7 @@ func TestGetTweets(t *testing.T) {
 			"text":   "this is a test tweet",
 		},
 		twittergo.Tweet{
-			"id_str": "id_str:711700393533640704",
+			"id_str": "711700393533640704",
 			"text":   "this is another test tweet",
 		},
 	}
@@ -55,4 +55,49 @@ func TestGetTweets(t *testing.T) {
 	if !reflect.DeepEqual(tweets, expectedTweets) {
 		t.Errorf("Expected tweets are %v, but were %v", expectedTweets, tweets)
 	}
+}
+
+func TestGetTweetsWithDifferentCounts(t *testing.T) {
+	tweets := []twittergo.Tweet{
+		twittergo.Tweet{
+			"id_str": "716102930609209345",
+			"text":   "this is a test tweet",
+		},
+		twittergo.Tweet{
+			"id_str": "711700393533640704",
+			"text":   "this is another test tweet",
+		},
+		twittergo.Tweet{
+			"id_str": "711700393533640705",
+			"text":   "this is yet another test tweet",
+		},
+	}
+	counts := []uint{1, 2, 3}
+	expectedResponses := make(map[string]*twittergo.APIResponse)
+	expectedTweets := make(map[uint][]twittergo.Tweet)
+	for _, count := range counts {
+		expectedTweets[count] = tweets[:count]
+		expectedReqURL := fmt.Sprintf("/1.1/search/tweets.json?count=%d&lang=en&q=fake+name&result_type=mixed",
+			count)
+		expectedTweetsJSON, _ := json.Marshal(&twittergo.SearchResults{"statuses": expectedTweets[count]})
+		expectedResp := &twittergo.APIResponse{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewReader(expectedTweetsJSON)),
+		}
+		expectedResponses[expectedReqURL] = expectedResp
+	}
+	twitterClient := TwitterClientMock{expectedResponses}
+
+	twitterFacade := NewTwitterFacadeWithClient(&twitterClient)
+	for _, count := range counts {
+		tweets, err := twitterFacade.GetTweets("fake name", count)
+
+		if err != nil {
+			t.Fatalf("Expected nil error, but was %v", err)
+		}
+		if !reflect.DeepEqual(tweets, expectedTweets[count]) {
+			t.Errorf("Expected tweets are %v, but were %v", expectedTweets[count], tweets)
+		}
+	}
+
 }
