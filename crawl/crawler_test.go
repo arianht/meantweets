@@ -1,16 +1,16 @@
-package crawl_test
+package crawl
 
 import (
-	"github.com/arianht/meantweets/crawl"
-	"github.com/arianht/meantweets/database"
-	"github.com/kurrik/twittergo"
 	"reflect"
 	"testing"
+
+	"github.com/arianht/meantweets/database"
+	"github.com/kurrik/twittergo"
 )
 
 func TestCrawlBasicFlowWithEmptyDatabase(t *testing.T) {
 	dao := database.DaoMock{Tweets: &[]database.Tweet{}}
-	twitter := crawl.TwitterFacadeMock{
+	twitter := TwitterFacadeMock{
 		Tweets: map[string][]twittergo.Tweet{
 			"Johnny": []twittergo.Tweet{
 				twittergo.Tweet{"id_str": "0", "text": "j_one"},
@@ -21,14 +21,14 @@ func TestCrawlBasicFlowWithEmptyDatabase(t *testing.T) {
 			},
 		},
 	}
-	sentiment := crawl.SentimentAnalyzerMock{
+	sentiment := SentimentAnalyzerMock{
 		Scores: map[string]int32{
 			"j_one": 2,
 			"j_two": 100,
 			"e_one": 872,
 		},
 	}
-	twitterCrawler := crawl.TwitterCrawler{
+	twitterCrawler := TwitterCrawler{
 		Dao:       dao,
 		Twitter:   twitter,
 		Sentiment: sentiment,

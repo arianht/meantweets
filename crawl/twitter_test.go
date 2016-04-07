@@ -1,4 +1,4 @@
-package crawl_test
+package crawl
 
 import (
 	"bytes"
@@ -9,7 +9,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/arianht/meantweets/crawl"
 	"github.com/kurrik/twittergo"
 )
 
@@ -47,7 +46,7 @@ func TestGetTweets(t *testing.T) {
 	}
 	twitterClient := TwitterClientMock{map[string]*twittergo.APIResponse{expectedReqURL: expectedResp}}
 
-	twitterFacade := crawl.NewTwitterFacadeWithClient(&twitterClient)
+	twitterFacade := NewTwitterFacadeWithClient(&twitterClient)
 	tweets, err := twitterFacade.GetTweets("fake name", tweetsCount)
 
 	if err != nil {
