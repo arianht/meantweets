@@ -13,12 +13,12 @@ package crawl
 
 import (
 	"fmt"
-	"github.com/kurrik/oauth1a"
-	"github.com/kurrik/twittergo"
 	"net/http"
 	"net/url"
 	"os"
-	"strconv"
+
+	"github.com/kurrik/oauth1a"
+	"github.com/kurrik/twittergo"
 )
 
 // TwitterFacade is an interface for retrieving celebrity tweets from Twitter.
@@ -55,22 +55,9 @@ func getTwitterClient() (client TwitterClient, err error) {
 	return
 }
 
-func getSearchTweetsRequest(searchQuery string, count uint) (req *http.Request, err error) {
+func createSearchTweetsRequest(searchQuery string, count uint) (req *http.Request, err error) {
 	url := fmt.Sprintf("/1.1/search/tweets.json?%v", getURLValues(searchQuery, count).Encode())
 	req, err = http.NewRequest("GET", url, nil)
-
-	return
-}
-
-func sendSearchTweetsRequest(client TwitterClient, req *http.Request) (results *twittergo.SearchResults,
-	err error) {
-	resp, err := client.SendRequest(req)
-	if err != nil {
-		return
-	}
-
-	results = &twittergo.SearchResults{}
-	err = resp.Parse(results)
 
 	return
 }
@@ -79,23 +66,32 @@ func getURLValues(searchQuery string, count uint) (query *url.Values) {
 	query = &url.Values{}
 	query.Set("q", searchQuery)
 	query.Set("lang", "en")
-	query.Set("count", strconv.FormatUint(uint64(count), 10))
+	query.Set("count", fmt.Sprintf("%d", count))
 	query.Set("result_type", "mixed") // Include both popular and real time results in the response
 
 	return
 }
 
-// Searches Twitter for and returns up to count tweets that contain the given string. At the time of this writing, Twitter will not return more than 100 results per request.
+// Searches Twitter for and returns tweets that contain the given string.
+// The result will contain up to count tweets. As of 04/06/2016, Twitter will
+// not return more than 100 results per request.
 func (twitter *twitterFacade) GetTweets(celebrity string, count uint) (tweets []twittergo.Tweet, err error) {
-	req, err := getSearchTweetsRequest(celebrity, count)
+	req, err := createSearchTweetsRequest(celebrity, count)
 	if err != nil {
 		return
 	}
 
-	results, err := sendSearchTweetsRequest(twitter.client, req)
+	resp, err := twitter.client.SendRequest(req)
 	if err != nil {
 		return
 	}
+
+	results := &twittergo.SearchResults{}
+	err = resp.Parse(results)
+	if err != nil {
+		return
+	}
+
 	tweets = results.Statuses()
 
 	return
