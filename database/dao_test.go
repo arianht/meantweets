@@ -39,7 +39,10 @@ func TestDatastoreDao(t *testing.T) {
 	// the write won't be done in time for the read.
 	time.Sleep(2 * time.Second)
 
-	johnTweets := dao.GetCelebrityTweets("John")
+	johnTweets, err := dao.GetCelebrityTweets("John")
+	if err != nil {
+		t.Errorf("Expected err %v to be nil.", err)
+	}
 
 	if tweetCount, expected := len(johnTweets), 2; tweetCount != expected {
 		t.Errorf("Expected tweet count for John is %d, but was %d", expected, tweetCount)
@@ -48,7 +51,10 @@ func TestDatastoreDao(t *testing.T) {
 		t.Errorf("Expected tweet content for John is %v, but was %v", expected, tweets)
 	}
 
-	jenTweets := dao.GetCelebrityTweets("Jen")
+	jenTweets, err := dao.GetCelebrityTweets("Jen")
+	if err != nil {
+		t.Errorf("Expected err %v to be nil.", err)
+	}
 
 	if tweetCount, expected := len(jenTweets), 4; tweetCount != expected {
 		t.Errorf("Expected tweet count for Jen is %d, but was %d", expected, tweetCount)
@@ -60,7 +66,10 @@ func TestDatastoreDao(t *testing.T) {
 
 	dao.DeleteAllTweetsForCelebrity("John")
 	time.Sleep(2 * time.Second)
-	johnTweetsAfterDelete := dao.GetCelebrityTweets("John")
+	johnTweetsAfterDelete, err := dao.GetCelebrityTweets("John")
+	if err != nil {
+		t.Errorf("Expected err %v to be nil.", err)
+	}
 
 	if tweetCount, expected := len(johnTweetsAfterDelete), 0; tweetCount != expected {
 		t.Errorf("Expected tweet count for John after delete is %d, but was %d", expected, tweetCount)

@@ -5,7 +5,6 @@ operations through this package.
 package database
 
 import (
-	"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 )
@@ -16,9 +15,9 @@ const (
 
 // Dao defines the interface for the data access object that abstracts database interactions.
 type Dao interface {
-	WriteCelebrityTweets(tweets []Tweet)
-	GetCelebrityTweets(celebrityName string) (tweets []Tweet)
-	DeleteAllTweetsForCelebrity(celebrityName string)
+	WriteCelebrityTweets(tweets []Tweet) (err error)
+	GetCelebrityTweets(celebrityName string) (tweets []Tweet, err error)
+	DeleteAllTweetsForCelebrity(celebrityName string) (err error)
 }
 
 // DatastoreDao is a DAO for interacting with App Engine's Datastore.
@@ -35,26 +34,24 @@ type Tweet struct {
 
 // WriteCelebrityTweets saves the slice of tweets to the database. Note that duplicates aren't
 // caught here because of writing asynchronicity.
-func (datastoreDao DatastoreDao) WriteCelebrityTweets(tweets []Tweet) {
+func (datastoreDao DatastoreDao) WriteCelebrityTweets(tweets []Tweet) (err error) {
 	keys := make([]*datastore.Key, len(tweets))
 	for i, _ := range tweets {
 		keys[i] = datastore.NewIncompleteKey(datastoreDao.Ctx, datastoreKind, nil)
 	}
-	if _, err := datastore.PutMulti(datastoreDao.Ctx, keys, tweets); err != nil {
-		fmt.Printf("Error writing to database: %v\n", err)
-		return
-	}
+	_, err = datastore.PutMulti(datastoreDao.Ctx, keys, tweets)
+	return
 }
 
-// GetCelebrityTweets retrieves all the celebrity tweets related to a celebrity sorted with highest scores first.
-// Duplicate tweets will be filtered out.
-func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrityName string) (tweets []Tweet) {
+// GetCelebrityTweets retrieves all the celebrity tweets related to a celebrity sorted with highest
+// scores first. Duplicate tweets will be filtered out.
+func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrityName string) (tweets []Tweet,
+	err error) {
 	q := datastore.NewQuery(datastoreKind).
 		Filter("CelebrityName = ", celebrityName).
 		Order("-Score")
 	var results []Tweet
-	if _, err := q.GetAll(datastoreDao.Ctx, &results); err != nil {
-		fmt.Printf("Error reading the database: %v\n", err)
+	if _, err = q.GetAll(datastoreDao.Ctx, &results); err != nil {
 		return
 	}
 	tweetSet := make(map[int64]bool)
@@ -68,16 +65,16 @@ func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrityName string) (tweet
 }
 
 // DeleteAllTweetsForCelebrity deletes all tweets for a provided celebirty name.
-func (datastoreDao DatastoreDao) DeleteAllTweetsForCelebrity(celebrityName string) {
+func (datastoreDao DatastoreDao) DeleteAllTweetsForCelebrity(celebrityName string) (err error) {
 	q := datastore.NewQuery(datastoreKind).
 		Filter("CelebrityName = ", celebrityName).
 		KeysOnly()
 	keys, err := q.GetAll(datastoreDao.Ctx, nil)
 	if err != nil {
-		fmt.Printf("Error reading the database: %v\n", err)
 		return
 	}
-	datastore.DeleteMulti(datastoreDao.Ctx, keys)
+	err = datastore.DeleteMulti(datastoreDao.Ctx, keys)
+	return
 }
 
 // DaoMock provides a mock Dao for unit tests of files that depend on a Dao.
@@ -86,12 +83,13 @@ type DaoMock struct {
 }
 
 // WriteCelebrityTweet implementation for DaoMock.
-func (dao DaoMock) WriteCelebrityTweets(tweets []Tweet) {
+func (dao DaoMock) WriteCelebrityTweets(tweets []Tweet) (err error) {
 	*dao.Tweets = append(*dao.Tweets, tweets...)
+	return
 }
 
 // GetCelebrityTweets implementation for DaoMock.
-func (dao DaoMock) GetCelebrityTweets(celebrityName string) (tweets []Tweet) {
+func (dao DaoMock) GetCelebrityTweets(celebrityName string) (tweets []Tweet, err error) {
 	for _, tweet := range *dao.Tweets {
 		if tweet.CelebrityName == celebrityName {
 			tweets = append(tweets, tweet)
@@ -101,6 +99,7 @@ func (dao DaoMock) GetCelebrityTweets(celebrityName string) (tweets []Tweet) {
 }
 
 // DeleteAllTweetsForCelebrity implementation for DaoMock.
-func (dao DaoMock) DeleteAllTweetsForCelebrity(celebrityName string) {
+func (dao DaoMock) DeleteAllTweetsForCelebrity(celebrityName string) (err error) {
 	*dao.Tweets = nil
+	return
 }
