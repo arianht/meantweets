@@ -16,7 +16,7 @@ const (
 
 // Dao defines the interface for the data access object that abstracts database interactions.
 type Dao interface {
-	WriteCelebrityTweet(tweet Tweet)
+	WriteCelebrityTweets(tweets []Tweet)
 	GetCelebrityTweets(celebrityName string) (tweets []Tweet)
 	DeleteAllTweetsForCelebrity(celebrityName string)
 }
@@ -33,11 +33,14 @@ type Tweet struct {
 	Score         int32
 }
 
-// WriteCelebrityTweet saves the celebrityName, tweetContents pair to the datastore. Note that duplicates aren't
+// WriteCelebrityTweets saves the slice of tweets to the database. Note that duplicates aren't
 // caught here because of writing asynchronicity.
-func (datastoreDao DatastoreDao) WriteCelebrityTweet(tweet Tweet) {
-	key := datastore.NewIncompleteKey(datastoreDao.Ctx, datastoreKind, nil)
-	if _, err := datastore.Put(datastoreDao.Ctx, key, &tweet); err != nil {
+func (datastoreDao DatastoreDao) WriteCelebrityTweets(tweets []Tweet) {
+	keys := make([]*datastore.Key, len(tweets))
+	for i, _ := range tweets {
+		keys[i] = datastore.NewIncompleteKey(datastoreDao.Ctx, datastoreKind, nil)
+	}
+	if _, err := datastore.PutMulti(datastoreDao.Ctx, keys, tweets); err != nil {
 		fmt.Printf("Error writing to database: %v\n", err)
 		return
 	}
@@ -83,8 +86,8 @@ type DaoMock struct {
 }
 
 // WriteCelebrityTweet implementation for DaoMock.
-func (dao DaoMock) WriteCelebrityTweet(tweet Tweet) {
-	*dao.Tweets = append(*dao.Tweets, tweet)
+func (dao DaoMock) WriteCelebrityTweets(tweets []Tweet) {
+	*dao.Tweets = append(*dao.Tweets, tweets...)
 }
 
 // GetCelebrityTweets implementation for DaoMock.

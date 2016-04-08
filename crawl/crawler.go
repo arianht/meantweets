@@ -29,10 +29,12 @@ func (crawler TwitterCrawler) Crawl(celebrities []string) {
 			continue
 		}
 		for _, tweet := range tweets {
-			crawler.Dao.WriteCelebrityTweet(database.Tweet{
-				CelebrityName: celebrity,
-				Id:            int64(tweet.Id()),
-				Score:         crawler.Sentiment.GetScoreForTweet(tweet.Text()),
+			crawler.Dao.WriteCelebrityTweets([]database.Tweet{
+				database.Tweet{
+					CelebrityName: celebrity,
+					Id:            int64(tweet.Id()),
+					Score:         crawler.Sentiment.GetScoreForTweet(tweet.Text()),
+				},
 			})
 		}
 	}

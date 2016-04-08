@@ -25,13 +25,15 @@ func TestDatastoreDao(t *testing.T) {
 	defer done()
 
 	dao := DatastoreDao{ctx}
-	dao.WriteCelebrityTweet(johnTweetOne)
-	dao.WriteCelebrityTweet(johnTweetOne) // Write a duplicate.
-	dao.WriteCelebrityTweet(johnTweetTwo)
-	dao.WriteCelebrityTweet(jenTweetOne)
-	dao.WriteCelebrityTweet(jenTweetTwo)
-	dao.WriteCelebrityTweet(jenTweetThree)
-	dao.WriteCelebrityTweet(jenTweetFour)
+	dao.WriteCelebrityTweets([]Tweet{
+		johnTweetOne,
+		johnTweetOne,
+		johnTweetTwo,
+		jenTweetOne,
+		jenTweetTwo,
+		jenTweetThree,
+		jenTweetFour,
+	})
 
 	// Sadly, App Engine Datastore takes time to fully write. Without this sleep,
 	// the write won't be done in time for the read.
