@@ -100,6 +100,12 @@ func (dao DaoMock) GetCelebrityTweets(celebrityName string) (tweets []Tweet, err
 
 // DeleteAllTweetsForCelebrity implementation for DaoMock.
 func (dao DaoMock) DeleteAllTweetsForCelebrity(celebrityName string) (err error) {
-	*dao.Tweets = nil
+	newTweets := []Tweet{}
+	for _, tweet := range *dao.Tweets {
+		if tweet.CelebrityName != celebrityName {
+			newTweets = append(newTweets, tweet)
+		}
+	}
+	*dao.Tweets = newTweets
 	return
 }
