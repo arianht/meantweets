@@ -38,13 +38,13 @@ func TestCrawl(t *testing.T) {
 			expectedEndDatabase: []database.Tweet{
 				database.Tweet{
 					CelebrityName: "Johnny",
-					Id:            1,
-					Score:         100,
+					Id:            0,
+					Score:         2,
 				},
 				database.Tweet{
 					CelebrityName: "Johnny",
-					Id:            0,
-					Score:         2,
+					Id:            1,
+					Score:         100,
 				},
 				database.Tweet{
 					CelebrityName: "Emma",
@@ -80,8 +80,8 @@ func TestCrawl(t *testing.T) {
 			expectedEndDatabase: []database.Tweet{
 				database.Tweet{
 					CelebrityName: "Johnny",
-					Id:            3,
-					Score:         300,
+					Id:            0,
+					Score:         2,
 				},
 				database.Tweet{
 					CelebrityName: "Johnny",

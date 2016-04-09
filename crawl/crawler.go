@@ -25,7 +25,7 @@ type ByScore []database.Tweet
 
 func (tweets ByScore) Len() int           { return len(tweets) }
 func (tweets ByScore) Swap(i, j int)      { tweets[i], tweets[j] = tweets[j], tweets[i] }
-func (tweets ByScore) Less(i, j int) bool { return tweets[i].Score >= tweets[j].Score }
+func (tweets ByScore) Less(i, j int) bool { return tweets[i].Score < tweets[j].Score }
 
 // Crawl crawls Twitter for mean tweets for a given celebrity and writes the results to
 // the database. The maxTweetsPerCelebrity specifies the maximum amount of tweets a
