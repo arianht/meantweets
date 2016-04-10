@@ -27,7 +27,8 @@ func (twitterClient *TwitterClientMock) SendRequest(req *http.Request) (resp *tw
 
 func TestGetTweets(t *testing.T) {
 	var tweetsCount uint = 10
-	expectedReqURL := fmt.Sprintf("/1.1/search/tweets.json?count=%d&lang=en&q=fake+name&result_type=mixed",
+	expectedReqURL := fmt.Sprintf("/1.1/search/tweets.json?count=%d&lang=en&"+
+		"q=fake+name+-filter%%3Aretweets+-filter%%3Amedia&result_type=mixed",
 		tweetsCount)
 	expectedTweets := []twittergo.Tweet{
 		twittergo.Tweet{
@@ -77,7 +78,8 @@ func TestGetTweetsWithDifferentCounts(t *testing.T) {
 	expectedTweets := make(map[uint][]twittergo.Tweet)
 	for _, count := range counts {
 		expectedTweets[count] = tweets[:count]
-		expectedReqURL := fmt.Sprintf("/1.1/search/tweets.json?count=%d&lang=en&q=fake+name&result_type=mixed",
+		expectedReqURL := fmt.Sprintf("/1.1/search/tweets.json?count=%d&lang=en&"+
+			"q=fake+name+-filter%%3Aretweets+-filter%%3Amedia&result_type=mixed",
 			count)
 		expectedTweetsJSON, _ := json.Marshal(&twittergo.SearchResults{"statuses": expectedTweets[count]})
 		expectedResp := &twittergo.APIResponse{
