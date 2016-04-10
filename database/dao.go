@@ -49,7 +49,7 @@ func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrityName string) (tweet
 	err error) {
 	q := datastore.NewQuery(datastoreKind).
 		Filter("CelebrityName = ", celebrityName).
-		Order("-Score")
+		Order("Score")
 	var results []Tweet
 	if _, err = q.GetAll(datastoreDao.Ctx, &results); err != nil {
 		return
