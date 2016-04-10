@@ -9,7 +9,10 @@ import (
 	"golang.org/x/net/context"
 )
 
-const tweetsPerRequest uint = 100
+const (
+	tweetsPerRequest       uint   = 100
+	apiCredentialsFilename string = "../credentials.json"
+)
 
 // Crawler is an interface for crawling celebrities.
 type Crawler interface {
@@ -83,7 +86,7 @@ func sortAndWriteTweets(tweets []database.Tweet, dao database.Dao, maxTweetsPerC
 
 func NewTwitterCrawler(ctx context.Context) (crawler TwitterCrawler, err error) {
 	dao := database.DatastoreDao{ctx}
-	twitter, err := NewTwitterFacade("../credentials.json")
+	twitter, err := NewTwitterFacade(apiCredentialsFilename)
 	if err != nil {
 		return
 	}
