@@ -95,6 +95,32 @@ func TestCrawl(t *testing.T) {
 				},
 			},
 		},
+		{ // Test Case: Duplicate tweets
+			initialDatabase: []database.Tweet{
+				database.Tweet{
+					CelebrityName: "Johnny",
+					Id:            3,
+					Score:         300,
+				},
+			},
+			celebrities: []string{"Johnny", "Emma"},
+			maxTweets:   2,
+			tweets: map[string][]twittergo.Tweet{
+				"Johnny": []twittergo.Tweet{
+					twittergo.Tweet{"id_str": "3", "text": "j_one"},
+				},
+			},
+			scores: map[string]int32{
+				"j_one": 300,
+			},
+			expectedEndDatabase: []database.Tweet{
+				database.Tweet{
+					CelebrityName: "Johnny",
+					Id:            3,
+					Score:         300,
+				},
+			},
+		},
 	}
 
 	for _, testCase := range testCases {

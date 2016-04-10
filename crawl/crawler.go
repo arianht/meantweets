@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/arianht/meantweets/database"
+	"github.com/kurrik/twittergo"
 	"golang.org/x/net/context"
 )
 
@@ -37,6 +38,10 @@ func (crawler TwitterCrawler) Crawl(celebrities []string, maxTweetsPerCelebrity 
 		if err != nil {
 			fmt.Printf("Could not get tweets for celebrity %v from database: %v\n", celebrity, err)
 		}
+		tweetIds := map[int64]bool{}
+		for _, tweet := range databaseTweets {
+			tweetIds[tweet.Id] = true
+		}
 		err = crawler.Dao.DeleteAllTweetsForCelebrity(celebrity)
 		if err != nil {
 			fmt.Printf("Failed to delete tweets for celebrity %v from database: %v\n", celebrity, err)
@@ -46,20 +51,34 @@ func (crawler TwitterCrawler) Crawl(celebrities []string, maxTweetsPerCelebrity 
 			fmt.Printf("Could not get tweets for celebrity %v: %v\n", celebrity, err)
 			continue
 		}
-		for _, tweet := range twitterTweets {
+		databaseTweets = append(databaseTweets, getDatabaseTweetsFromTwitterTweets(twitterTweets,
+			celebrity, crawler.Sentiment, tweetIds)...)
+		sortAndWriteTweets(databaseTweets, crawler.Dao, maxTweetsPerCelebrity)
+	}
+}
+
+func getDatabaseTweetsFromTwitterTweets(tweets []twittergo.Tweet, celebrity string,
+	sentimentAnalyzer SentimentAnalyzer, tweetIds map[int64]bool) (databaseTweets []database.Tweet) {
+	for _, tweet := range tweets {
+		if !tweetIds[int64(tweet.Id())] {
 			databaseTweets = append(databaseTweets, database.Tweet{
 				CelebrityName: celebrity,
 				Id:            int64(tweet.Id()),
-				Score:         crawler.Sentiment.GetScoreForTweet(tweet.Text()),
+				Score:         sentimentAnalyzer.GetScoreForTweet(tweet.Text()),
 			})
 		}
-		sort.Sort(ByScore(databaseTweets))
-		maxIndex := maxTweetsPerCelebrity
-		if maxIndex > len(databaseTweets) {
-			maxIndex = len(databaseTweets)
-		}
-		crawler.Dao.WriteCelebrityTweets(databaseTweets[:maxIndex])
 	}
+	return
+}
+
+func sortAndWriteTweets(tweets []database.Tweet, dao database.Dao, maxTweetsPerCelebrity int) {
+	sort.Sort(ByScore(tweets))
+
+	maxIndex := maxTweetsPerCelebrity
+	if maxIndex > len(tweets) {
+		maxIndex = len(tweets)
+	}
+	dao.WriteCelebrityTweets(tweets[:maxIndex])
 }
 
 func NewTwitterCrawler(ctx context.Context) (crawler TwitterCrawler, err error) {
