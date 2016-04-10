@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/arianht/meantweets/database"
+	"golang.org/x/net/context"
 )
 
 const tweetsPerRequest uint = 100
@@ -59,4 +60,22 @@ func (crawler TwitterCrawler) Crawl(celebrities []string, maxTweetsPerCelebrity 
 		}
 		crawler.Dao.WriteCelebrityTweets(databaseTweets[:maxIndex])
 	}
+}
+
+func NewTwitterCrawler(ctx context.Context) (crawler TwitterCrawler, err error) {
+	dao := database.DatastoreDao{ctx}
+	twitter, err := NewTwitterFacade()
+	if err != nil {
+		return
+	}
+	sentiment, err := NewSentimentAnalyzer()
+	if err != nil {
+		return
+	}
+	crawler = TwitterCrawler{
+		Dao:       dao,
+		Twitter:   twitter,
+		Sentiment: sentiment,
+	}
+	return
 }

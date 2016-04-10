@@ -16,21 +16,10 @@ func TestRealCrawl(t *testing.T) {
 	}
 	defer done()
 
-	dao := database.DatastoreDao{ctx}
-	twitter, err := NewTwitterFacade()
+	twitterCrawler, err := NewTwitterCrawler(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	sentiment, err := NewSentimentAnalyzer()
-	if err != nil {
-		t.Fatal(err)
-	}
-	twitterCrawler := TwitterCrawler{
-		Dao:       dao,
-		Twitter:   twitter,
-		Sentiment: sentiment,
-	}
-
 	celebrities := []string{"Johnny Depp", "Jennifer Lopez", "Justin Bieber", "Taylor Swift"}
 	maxTweets := 5
 	twitterCrawler.Crawl(celebrities, maxTweets)
@@ -41,7 +30,7 @@ func TestRealCrawl(t *testing.T) {
 
 	fmt.Println("Printing out results from the Crawler Integration Test")
 	for _, celebrity := range celebrities {
-		tweets, err := dao.GetCelebrityTweets(celebrity)
+		tweets, err := twitterCrawler.Dao.GetCelebrityTweets(celebrity)
 		if err != nil {
 			t.Fatal(err)
 		}
