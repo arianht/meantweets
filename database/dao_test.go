@@ -47,7 +47,7 @@ func TestDatastoreDao(t *testing.T) {
 	if tweetCount, expected := len(johnTweets), 2; tweetCount != expected {
 		t.Errorf("Expected tweet count for John is %d, but was %d", expected, tweetCount)
 	}
-	if tweets, expected := johnTweets, []Tweet{johnTweetOne, johnTweetTwo}; !reflect.DeepEqual(tweets, expected) {
+	if tweets, expected := johnTweets, []Tweet{johnTweetTwo, johnTweetOne}; !reflect.DeepEqual(tweets, expected) {
 		t.Errorf("Expected tweet content for John is %v, but was %v", expected, tweets)
 	}
 
@@ -60,7 +60,7 @@ func TestDatastoreDao(t *testing.T) {
 		t.Errorf("Expected tweet count for Jen is %d, but was %d", expected, tweetCount)
 	}
 
-	if tweets, expected := jenTweets, []Tweet{jenTweetFour, jenTweetOne, jenTweetTwo, jenTweetThree}; !reflect.DeepEqual(tweets, expected) {
+	if tweets, expected := jenTweets, []Tweet{jenTweetThree, jenTweetTwo, jenTweetOne, jenTweetFour}; !reflect.DeepEqual(tweets, expected) {
 		t.Errorf("Expected tweet content for Jen is %v, but was %v", expected, tweets)
 	}
 
