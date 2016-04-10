@@ -2,12 +2,12 @@
 Package crawl provides a means for crawling for tweets, getting their sentiment score, and writing them
 to the database.
 
-To run, the environment variables TWITTER_CONSUMER_KEY and TWITTER_CONSUMER_SECRET
-must be set. On Linux, set them using the following commands:
-
-export TWITTER_CONSUMER_KEY=<consumer key>
-export TWITTER_CONSUMER_SECRET=<consumer secret>
-
+To run, a credentials.json file must be present in the root directory of the project.
+The file must have the following format:
+{
+  "ConsumerKey": "<consumer-key>",
+  "ConsumerSecret": "<consumer-secret>"
+}
 */
 package crawl
 
@@ -15,11 +15,13 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 
+	"github.com/arianht/meantweets/util"
 	"github.com/kurrik/oauth1a"
 	"github.com/kurrik/twittergo"
 )
+
+const apiCredentialsFilename string = "credentials.json"
 
 // TwitterFacade is an interface for retrieving celebrity tweets from Twitter.
 type TwitterFacade interface {
@@ -36,29 +38,21 @@ type TwitterClient interface {
 }
 
 func getTwitterClient() (client TwitterClient, err error) {
-	consumerKey := os.Getenv("TWITTER_CONSUMER_KEY")
-	if consumerKey == "" {
-		err = fmt.Errorf("The TWITTER_CONSUMER_KEY env variable must be set.")
-		return
-	}
-	consumerSecret := os.Getenv("TWITTER_CONSUMER_SECRET")
-	if consumerSecret == "" {
-		err = fmt.Errorf("The TWITTER_CONSUMER_SECRET env variable must be set.")
+	credentials, err := util.GetTwitterAPICredentialsFromFile(apiCredentialsFilename)
+	if err != nil {
 		return
 	}
 	config := &oauth1a.ClientConfig{
-		ConsumerKey:    consumerKey,
-		ConsumerSecret: consumerSecret,
+		ConsumerKey:    credentials.ConsumerKey,
+		ConsumerSecret: credentials.ConsumerSecret,
 	}
 	client = twittergo.NewClient(config, nil)
-
 	return
 }
 
 func createSearchTweetsRequest(searchQuery string, count uint) (req *http.Request, err error) {
 	url := fmt.Sprintf("/1.1/search/tweets.json?%v", getURLValues(searchQuery, count).Encode())
 	req, err = http.NewRequest("GET", url, nil)
-
 	return
 }
 
@@ -68,7 +62,6 @@ func getURLValues(searchQuery string, count uint) (query *url.Values) {
 	query.Set("lang", "en")
 	query.Set("count", fmt.Sprintf("%d", count))
 	query.Set("result_type", "mixed") // Include both popular and real time results in the response
-
 	return
 }
 
@@ -93,7 +86,6 @@ func (twitter *twitterFacade) GetTweets(celebrity string, count uint) (tweets []
 	}
 
 	tweets = results.Statuses()
-
 	return
 }
 
@@ -106,7 +98,6 @@ func NewTwitterFacade() (twitter TwitterFacade, err error) {
 	}
 	facade.client = client
 	twitter = facade
-
 	return
 }
 
