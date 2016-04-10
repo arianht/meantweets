@@ -17,7 +17,7 @@ func TestRealCrawl(t *testing.T) {
 	defer done()
 
 	dao := database.DatastoreDao{ctx}
-	twitter, err := NewTwitterFacade()
+	twitter, err := NewTwitterFacade("../credentials.json")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,14 +1,5 @@
-/*
-Package crawl provides a means for crawling for tweets, getting their sentiment score, and writing them
-to the database.
-
-To run, a credentials.json file must be present in the root directory of the project.
-The file must have the following format:
-{
-  "ConsumerKey": "<consumer-key>",
-  "ConsumerSecret": "<consumer-secret>"
-}
-*/
+// Package crawl provides a means for crawling for tweets, getting their sentiment score, and writing them
+// to the database.
 package crawl
 
 import (
@@ -20,8 +11,6 @@ import (
 	"github.com/kurrik/oauth1a"
 	"github.com/kurrik/twittergo"
 )
-
-const apiCredentialsFilename string = "credentials.json"
 
 // TwitterFacade is an interface for retrieving celebrity tweets from Twitter.
 type TwitterFacade interface {
@@ -37,7 +26,7 @@ type TwitterClient interface {
 	SendRequest(req *http.Request) (resp *twittergo.APIResponse, err error)
 }
 
-func getTwitterClient() (client TwitterClient, err error) {
+func getTwitterClient(apiCredentialsFilename string) (client TwitterClient, err error) {
 	credentials, err := util.GetTwitterAPICredentialsFromFile(apiCredentialsFilename)
 	if err != nil {
 		return
@@ -90,9 +79,14 @@ func (twitter *twitterFacade) GetTweets(celebrity string, count uint) (tweets []
 }
 
 // NewTwitterFacade returns a Twitter facade that can be used to get tweets based on a query string.
-func NewTwitterFacade() (twitter TwitterFacade, err error) {
+// The Twitter facade reads API credentials from the given JSON file which must have the following format:
+// {
+//   "ConsumerKey": "<consumer-key>",
+//   "ConsumerSecret": "<consumer-secret>"
+// }
+func NewTwitterFacade(apiCredentialsFilename string) (twitter TwitterFacade, err error) {
 	facade := &twitterFacade{}
-	client, err := getTwitterClient()
+	client, err := getTwitterClient(apiCredentialsFilename)
 	if err != nil {
 		return
 	}
