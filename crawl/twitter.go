@@ -47,7 +47,7 @@ func createSearchTweetsRequest(searchQuery string, count uint) (req *http.Reques
 
 func getURLValues(searchQuery string, count uint) (query *url.Values) {
 	query = &url.Values{}
-	query.Set("q", searchQuery+" -filter:retweets -filter:media") // Exclude retweets and tweets with image or video
+	query.Set("q", searchQuery+" -filter:retweets -filter:media -filter:replies -filter:links")
 	query.Set("lang", "en")
 	query.Set("count", fmt.Sprintf("%d", count))
 	query.Set("result_type", "mixed") // Include both popular and real time results in the response
