@@ -16,6 +16,17 @@ type TwitterClientMock struct {
 	responses map[string]*twittergo.APIResponse
 }
 
+func getExpectedReqURL(query string, count uint) string {
+	return fmt.Sprintf("/1.1/search/tweets.json?count=%d&lang=en&"+
+		"q=%s"+
+		"+-filter%%3Aretweets"+
+		"+-filter%%3Amedia"+
+		"+-filter%%3Areplies"+
+		"+-filter%%3Alinks"+
+		"&result_type=mixed",
+		count, query)
+}
+
 func (twitterClient *TwitterClientMock) SendRequest(req *http.Request) (resp *twittergo.APIResponse, err error) {
 	resp, exists := twitterClient.responses[req.URL.String()]
 	if !exists {
@@ -26,10 +37,9 @@ func (twitterClient *TwitterClientMock) SendRequest(req *http.Request) (resp *tw
 }
 
 func TestGetTweets(t *testing.T) {
-	var tweetsCount uint = 10
-	expectedReqURL := fmt.Sprintf("/1.1/search/tweets.json?count=%d&lang=en&"+
-		"q=fake+name+-filter%%3Aretweets+-filter%%3Amedia&result_type=mixed",
-		tweetsCount)
+	const query string = "fakename"
+	const tweetsCount uint = 10
+	expectedReqURL := getExpectedReqURL(query, tweetsCount)
 	expectedTweets := []twittergo.Tweet{
 		twittergo.Tweet{
 			"id_str": "716102930609209345",
@@ -48,7 +58,7 @@ func TestGetTweets(t *testing.T) {
 	twitterClient := TwitterClientMock{map[string]*twittergo.APIResponse{expectedReqURL: expectedResp}}
 
 	twitterFacade := NewTwitterFacadeWithClient(&twitterClient)
-	tweets, err := twitterFacade.GetTweets("fake name", tweetsCount)
+	tweets, err := twitterFacade.GetTweets(query, tweetsCount)
 
 	if err != nil {
 		t.Fatalf("Expected nil error, but was %v", err)
@@ -59,6 +69,7 @@ func TestGetTweets(t *testing.T) {
 }
 
 func TestGetTweetsWithDifferentCounts(t *testing.T) {
+	const query string = "fakename"
 	tweets := []twittergo.Tweet{
 		twittergo.Tweet{
 			"id_str": "716102930609209345",
@@ -78,9 +89,7 @@ func TestGetTweetsWithDifferentCounts(t *testing.T) {
 	expectedTweets := make(map[uint][]twittergo.Tweet)
 	for _, count := range counts {
 		expectedTweets[count] = tweets[:count]
-		expectedReqURL := fmt.Sprintf("/1.1/search/tweets.json?count=%d&lang=en&"+
-			"q=fake+name+-filter%%3Aretweets+-filter%%3Amedia&result_type=mixed",
-			count)
+		expectedReqURL := getExpectedReqURL(query, count)
 		expectedTweetsJSON, _ := json.Marshal(&twittergo.SearchResults{"statuses": expectedTweets[count]})
 		expectedResp := &twittergo.APIResponse{
 			StatusCode: 200,
@@ -92,7 +101,7 @@ func TestGetTweetsWithDifferentCounts(t *testing.T) {
 
 	twitterFacade := NewTwitterFacadeWithClient(&twitterClient)
 	for _, count := range counts {
-		tweets, err := twitterFacade.GetTweets("fake name", count)
+		tweets, err := twitterFacade.GetTweets(query, count)
 
 		if err != nil {
 			t.Fatalf("Expected nil error, but was %v", err)
