@@ -30,11 +30,12 @@ type TwitterEmbed struct {
 }
 
 func init() {
-	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/test", testHandler)
 	http.HandleFunc("/crawl", crawlHandler)
+	http.Handle("/", http.FileServer(http.Dir("../ui/dist")))
 }
 
-func rootHandler(writer http.ResponseWriter, r *http.Request) {
+func testHandler(writer http.ResponseWriter, r *http.Request) {
 	writer.Header().Set("Content-Type", "Text/HTML")
 	ctx := appengine.NewContext(r)
 	dao := database.DatastoreDao{ctx}
