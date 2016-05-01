@@ -6,10 +6,15 @@ import (
 	"time"
 
 	"github.com/arianht/meantweets/database"
+	"github.com/arianht/meantweets/util"
 	"google.golang.org/appengine/aetest"
 )
 
 func TestRealCrawl(t *testing.T) {
+	_, err := util.GetTwitterAPICredentialsFromFile("../credentials.json")
+	if err != nil {
+		t.Skipf("Error getting Twitter credentials: %v. Skipping crawler integration test.", err)
+	}
 	ctx, done, err := aetest.NewContext()
 	if err != nil {
 		t.Fatal(err)
