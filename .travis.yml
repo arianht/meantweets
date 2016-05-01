@@ -9,4 +9,4 @@ install:
   - export PATH=$PATH:$PWD/go_appengine/
 
 script:
-  - goapp test
+  - goapp test ./...
