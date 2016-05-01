@@ -1,2 +1,7 @@
 credentials.json
 index.yaml
+
+coverage
+typings
+node_modules
+dist
