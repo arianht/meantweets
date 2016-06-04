@@ -4,7 +4,8 @@ const helpers = require('./helpers');
 /*
  * Webpack Plugins
  */
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+var CopyWebpackPlugin = (CopyWebpackPlugin = require('copy-webpack-plugin'),
+    CopyWebpackPlugin.default || CopyWebpackPlugin);
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ForkCheckerPlugin = require('awesome-typescript-loader').ForkCheckerPlugin;
 
@@ -44,11 +45,9 @@ module.exports = {
    * See: http://webpack.github.io/docs/configuration.html#entry
    */
   entry: {
-
     'polyfills': './polyfills.ts',
     'vendor': './vendor.ts',
     'main': './app/main.ts'
-
   },
 
   /*
@@ -57,7 +56,6 @@ module.exports = {
    * See: http://webpack.github.io/docs/configuration.html#resolve
    */
   resolve: {
-
     /*
      * An array of extensions that should be used to resolve modules.
      *
@@ -69,7 +67,6 @@ module.exports = {
 
     // remove other default values
     modulesDirectories: ['node_modules']
-
   },
 
   /*
@@ -91,7 +88,11 @@ module.exports = {
        *
        * See: https://github.com/wbuchwalter/tslint-loader
        */
-       // { test: /\.ts$/, loader: 'tslint-loader', exclude: [ helpers.root('node_modules') ] },
+       {
+         test: /\.ts$/,
+         loader: 'tslint-loader',
+         exclude: [helpers.root('node_modules')]
+       },
 
       /*
        * Source map loader support for *.js files
@@ -105,9 +106,9 @@ module.exports = {
         exclude: [
           // these packages have problems with their sourcemaps
           helpers.root('node_modules/rxjs'),
+          helpers.root('node_modules/@angular')
         ]
       }
-
     ],
 
     /*
@@ -171,7 +172,6 @@ module.exports = {
    * See: http://webpack.github.io/docs/configuration.html#plugins
    */
   plugins: [
-
     /*
      * Plugin: ForkCheckerPlugin
      * Description: Do type checking in a separate process, so webpack don't need to wait.
@@ -199,7 +199,7 @@ module.exports = {
      * See: https://github.com/webpack/docs/wiki/optimization#multi-page-app
      */
     new webpack.optimize.CommonsChunkPlugin({
-      name: helpers.reverse(['polyfills', 'vendor'])
+      name: ['polyfills', 'vendor'].reverse()
     }),
 
     /*
@@ -225,7 +225,7 @@ module.exports = {
      */
     new HtmlWebpackPlugin({
       template: './index.html',
-      chunksSortMode: helpers.packageSort(['polyfills', 'vendor', 'main'])
+      chunksSortMode: 'dependency'
     })
 
   ],
@@ -243,5 +243,4 @@ module.exports = {
     clearImmediate: false,
     setImmediate: false
   }
-
 };

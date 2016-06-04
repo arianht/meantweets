@@ -1,5 +1,4 @@
-import {Component } from 'angular2/core';
-// import { RouteConfig, Router } from 'angular2/router';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'my-app',
@@ -10,8 +9,6 @@ import {Component } from 'angular2/core';
     <h1>Hello World!</h1>
   `
 })
-// @RouteConfig([
-// ])
 export class AppComponent {
   constructor() {
   }

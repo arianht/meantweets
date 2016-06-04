@@ -1,5 +1,5 @@
-import { describe, it, expect, async, inject, beforeEachProviders,
-  TestComponentBuilder } from 'angular2/testing';
+import { describe, it, expect, async, inject, beforeEachProviders } from '@angular/core/testing';
+  import { TestComponentBuilder } from '@angular/compiler/testing';
 import { AppComponent } from './app.component';
 
 describe('Component: App', () => {
@@ -14,4 +14,4 @@ describe('Component: App', () => {
       expect(true).toBeTruthy();
     });
   })));
-})
+});
