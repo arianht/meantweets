@@ -30,11 +30,12 @@ type TwitterEmbed struct {
 }
 
 func init() {
-	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/test", testHandler)
 	http.HandleFunc("/crawl", crawlHandler)
+	http.Handle("/", http.FileServer(http.Dir("../ui/dist")))
 }
 
-func rootHandler(writer http.ResponseWriter, r *http.Request) {
+func testHandler(writer http.ResponseWriter, r *http.Request) {
 	writer.Header().Set("Content-Type", "Text/HTML")
 	ctx := appengine.NewContext(r)
 	dao := database.DatastoreDao{ctx}
@@ -45,12 +46,12 @@ func rootHandler(writer http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fmt.Fprintf(writer, "<h1>Mean Tweets for %v</h1>", celebrity)
+		channel := make(chan string)
 		for _, tweet := range tweets {
-			html, err := getTwitterHTML(ctx, tweet.Id)
-			if err != nil {
-				fmt.Fprintf(writer, "Error talking to Twitter: %v", err)
-				return
-			}
+			go getTwitterHTML(ctx, tweet.Id, channel)
+		}
+		for _ = range tweets {
+			html := <-channel
 			fmt.Fprintf(writer, html)
 		}
 	}
@@ -68,10 +69,11 @@ func crawlHandler(writer http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(writer, "Successfully crawled.")
 }
 
-func getTwitterHTML(ctx context.Context, id int64) (html string, err error) {
+func getTwitterHTML(ctx context.Context, id int64, channel chan string) {
 	client := urlfetch.Client(ctx)
 	res, err := client.Get(fmt.Sprintf("https://api.twitter.com/1/statuses/oembed.json?id=%v", id))
 	if err != nil {
+		fmt.Println("Error talking to twitter.", err)
 		return
 	}
 	defer res.Body.Close()
@@ -79,8 +81,8 @@ func getTwitterHTML(ctx context.Context, id int64) (html string, err error) {
 	embeddedHTML := TwitterEmbed{}
 	err = decoder.Decode(&embeddedHTML)
 	if err != nil {
+		fmt.Println("Error talking to twitter.", err)
 		return
 	}
-	html = embeddedHTML.Html
-	return
+	channel <- embeddedHTML.Html
 }
