@@ -29,15 +29,25 @@ type TwitterEmbed struct {
 	Html string
 }
 
+type ContextHandler struct {
+	Handle func(context.Context, http.ResponseWriter, *http.Request)
+}
+
+func (contextHandler ContextHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	ctx := appengine.NewContext(request)
+	contextHandler.Handle(ctx, writer, request)
+}
+
 func init() {
-	http.HandleFunc("/test", testHandler)
-	http.HandleFunc("/crawl", crawlHandler)
+	http.Handle("/test", ContextHandler{testHandler})
+	http.Handle("/crawl", ContextHandler{crawlHandler})
+	http.Handle("/get_celebrities", ContextHandler{celebritiesHandler})
+	http.Handle("/get_tweets", ContextHandler{tweetsHandler})
 	http.Handle("/", http.FileServer(http.Dir("../ui/dist")))
 }
 
-func testHandler(writer http.ResponseWriter, r *http.Request) {
+func testHandler(ctx context.Context, writer http.ResponseWriter, r *http.Request) {
 	writer.Header().Set("Content-Type", "Text/HTML")
-	ctx := appengine.NewContext(r)
 	dao := database.DatastoreDao{ctx}
 	for _, celebrity := range celebrities {
 		tweets, err := dao.GetCelebrityTweets(celebrity)
@@ -57,8 +67,7 @@ func testHandler(writer http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func crawlHandler(writer http.ResponseWriter, r *http.Request) {
-	ctx := appengine.NewContext(r)
+func crawlHandler(ctx context.Context, writer http.ResponseWriter, r *http.Request) {
 	crawler, err := crawl.NewTwitterCrawler(ctx)
 	if err != nil {
 		fmt.Fprintf(writer, "Error crawling tweets: %v", err)
@@ -67,6 +76,14 @@ func crawlHandler(writer http.ResponseWriter, r *http.Request) {
 	maxTweets := 5
 	crawler.Crawl(celebrities, maxTweets)
 	fmt.Fprintf(writer, "Successfully crawled.")
+}
+
+func tweetsHandler(ctx context.Context, writer http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(writer, "OK")
+}
+
+func celebritiesHandler(ctx context.Context, writer http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(writer, "OK")
 }
 
 func getTwitterHTML(ctx context.Context, id int64, channel chan string) {
