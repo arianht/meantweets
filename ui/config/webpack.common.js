@@ -4,8 +4,7 @@ const helpers = require('./helpers');
 /*
  * Webpack Plugins
  */
-var CopyWebpackPlugin = (CopyWebpackPlugin = require('copy-webpack-plugin'),
-    CopyWebpackPlugin.default || CopyWebpackPlugin);
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ForkCheckerPlugin = require('awesome-typescript-loader').ForkCheckerPlugin;
 
@@ -61,7 +60,7 @@ module.exports = {
      *
      * See: http://webpack.github.io/docs/configuration.html#resolve-extensions
      */
-    extensions: ['', '.ts', '.js'],
+    extensions: ['', '.ts', '.js', '.json'],
 
     root: helpers.root('app'),
 
@@ -106,7 +105,8 @@ module.exports = {
         exclude: [
           // these packages have problems with their sourcemaps
           helpers.root('node_modules/rxjs'),
-          helpers.root('node_modules/@angular')
+          helpers.root('node_modules/@angular'),
+          helpers.root('node_modules/@angular2-material')
         ]
       }
     ],

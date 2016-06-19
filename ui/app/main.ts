@@ -4,7 +4,9 @@ import { ENV_PROVIDERS } from './platform/environment';
 import { AppComponent } from './app.component';
 
 export function main(initialHmrState?: any): Promise<any> {
-  return bootstrap(AppComponent).catch(err => console.error(err));
+  return bootstrap(AppComponent, [
+      ...ENV_PROVIDERS
+  ]).catch(err => console.error(err));
 }
 
 if ('development' === ENV && HMR === true) {
