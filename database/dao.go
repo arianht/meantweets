@@ -27,7 +27,7 @@ type DatastoreDao struct {
 
 // Tweet is an entity for storing data in the datastore.
 type Tweet struct {
-	CelebrityName string
+	CelebrityName string `json:",omitempty"`
 	Id            int64
 	Score         int32
 }
@@ -49,6 +49,7 @@ func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrityName string) (tweet
 	err error) {
 	q := datastore.NewQuery(datastoreKind).
 		Filter("CelebrityName = ", celebrityName).
+		Project("Id", "Score").
 		Order("Score")
 	var results []Tweet
 	if _, err = q.GetAll(datastoreDao.Ctx, &results); err != nil {

@@ -79,11 +79,16 @@ func crawlHandler(ctx context.Context, writer http.ResponseWriter, r *http.Reque
 }
 
 func tweetsHandler(ctx context.Context, writer http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(writer, "OK")
+	celebrity := r.URL.Query().Get("celebrity")
+	dao := database.DatastoreDao{ctx}
+	tweets, _ := dao.GetCelebrityTweets(celebrity)
+	result, _ := json.Marshal(tweets)
+	writer.Write(result)
 }
 
 func celebritiesHandler(ctx context.Context, writer http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(writer, "OK")
+	result, _ := json.Marshal(celebrities)
+	writer.Write(result)
 }
 
 func getTwitterHTML(ctx context.Context, id int64, channel chan string) {
