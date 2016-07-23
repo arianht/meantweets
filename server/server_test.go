@@ -62,6 +62,12 @@ func TestGetCelebritiesEndpoint(t *testing.T) {
 }
 
 func TestCrawlEndpoint(t *testing.T) {
+	// Skip test if credentials are not found.
+	_, err := util.GetTwitterAPICredentialsFromFile("../credentials.json")
+	if err != nil {
+		t.Skipf("Error getting Twitter credentials: %v. Skipping crawl endpoint test.", err)
+	}
+
 	ctx, done, err := aetest.NewContext()
 	if err != nil {
 		t.Fatalf("Could not get a context - %v", err)

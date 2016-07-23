@@ -11,6 +11,7 @@ import (
 )
 
 func TestRealCrawl(t *testing.T) {
+	// Skip test if credentials are not found.
 	_, err := util.GetTwitterAPICredentialsFromFile("../credentials.json")
 	if err != nil {
 		t.Skipf("Error getting Twitter credentials: %v. Skipping crawler integration test.", err)
