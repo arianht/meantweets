@@ -7,20 +7,16 @@ import (
 
 	"github.com/arianht/meantweets/database"
 	"github.com/arianht/meantweets/util"
-	"google.golang.org/appengine/aetest"
+	"golang.org/x/net/context"
 )
 
 func TestRealCrawl(t *testing.T) {
 	// Skip test if credentials are not found.
-	_, err := util.GetTwitterAPICredentialsFromFile("../credentials.json")
+	_, err := util.GetTwitterAPICredentialsFromFile("credentials.json")
 	if err != nil {
 		t.Skipf("Error getting Twitter credentials: %v. Skipping crawler integration test.", err)
 	}
-	ctx, done, err := aetest.NewContext()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer done()
+	ctx := context.Background()
 
 	twitterCrawler, err := NewTwitterCrawler(ctx)
 	if err != nil {
@@ -42,7 +38,7 @@ func TestRealCrawl(t *testing.T) {
 		}
 		// Make sure we crawled tweets and wrote the top ones to the database.
 		if len(tweets) != maxTweets {
-			t.Errorf("Expected %d tweets for celebrity %v in database.", maxTweets, celebrity)
+			t.Errorf("Expected %d tweets for celebrity %v in database, but was %v.", maxTweets, celebrity, len(tweets))
 		}
 		printCelebrityResults(celebrity, tweets)
 	}

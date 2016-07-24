@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"encoding/json"
@@ -9,15 +9,11 @@ import (
 
 	"github.com/arianht/meantweets/database"
 	"github.com/arianht/meantweets/util"
-	"google.golang.org/appengine/aetest"
+	"golang.org/x/net/context"
 )
 
 func TestGetTweetsEndpoint(t *testing.T) {
-	ctx, done, err := aetest.NewContext()
-	if err != nil {
-		t.Fatalf("Could not get a context - %v", err)
-	}
-	defer done()
+	ctx := context.Background()
 
 	tweets := []database.Tweet{
 		database.Tweet{"test", 0, 500},
@@ -28,7 +24,10 @@ func TestGetTweetsEndpoint(t *testing.T) {
 		database.Tweet{Id: 0, Score: 500},
 	}
 
-	dao := database.DatastoreDao{ctx}
+	dao, err := database.NewDatastoreDao(ctx)
+	if err != nil {
+		t.Errorf("Failed to create datastore dao, %v", err)
+	}
 	dao.WriteCelebrityTweets(tweets)
 
 	// Sadly, App Engine Datastore takes time to fully write. Without this sleep,
@@ -46,11 +45,7 @@ func TestGetTweetsEndpoint(t *testing.T) {
 }
 
 func TestGetCelebritiesEndpoint(t *testing.T) {
-	ctx, done, err := aetest.NewContext()
-	if err != nil {
-		t.Fatalf("Could not get a context - %v", err)
-	}
-	defer done()
+	ctx := context.Background()
 
 	request, _ := http.NewRequest("GET", "/get_celebrities", nil)
 	recorder := httptest.NewRecorder()
@@ -64,16 +59,12 @@ func TestGetCelebritiesEndpoint(t *testing.T) {
 
 func TestCrawlEndpoint(t *testing.T) {
 	// Skip test if credentials are not found.
-	_, err := util.GetTwitterAPICredentialsFromFile("../credentials.json")
+	_, err := util.GetTwitterAPICredentialsFromFile("credentials.json")
 	if err != nil {
 		t.Skipf("Error getting Twitter credentials: %v. Skipping crawl endpoint test.", err)
 	}
 
-	ctx, done, err := aetest.NewContext()
-	if err != nil {
-		t.Fatalf("Could not get a context - %v", err)
-	}
-	defer done()
+	ctx := context.Background()
 
 	request, _ := http.NewRequest("GET", "/crawl", nil)
 	recorder := httptest.NewRecorder()

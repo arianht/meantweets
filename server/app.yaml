@@ -1,5 +1,8 @@
+application: meantweets-1381
+version: v1
 runtime: go
 api_version: go1
+vm: true
 
 handlers:
 - url: /.*

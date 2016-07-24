@@ -6,7 +6,7 @@ package database
 
 import (
 	"golang.org/x/net/context"
-	"google.golang.org/appengine/datastore"
+	"google.golang.org/cloud/datastore"
 )
 
 const (
@@ -22,7 +22,8 @@ type Dao interface {
 
 // DatastoreDao is a DAO for interacting with App Engine's Datastore.
 type DatastoreDao struct {
-	Ctx context.Context // App Engine Context which can be obtained from an HTTP request.
+	Ctx             context.Context // App Engine Context which can be obtained from an HTTP request.
+	DatastoreClient *datastore.Client
 }
 
 // Tweet is an entity for storing data in the datastore.
@@ -32,6 +33,15 @@ type Tweet struct {
 	Score         int32
 }
 
+func NewDatastoreDao(ctx context.Context) (datastoreDao DatastoreDao, err error) {
+	client, err := datastore.NewClient(ctx, "meantweets-1381")
+	if err != nil {
+		return
+	}
+	datastoreDao = DatastoreDao{ctx, client}
+	return
+}
+
 // WriteCelebrityTweets saves the slice of tweets to the database. Note that duplicates aren't
 // caught here because of writing asynchronicity.
 func (datastoreDao DatastoreDao) WriteCelebrityTweets(tweets []Tweet) (err error) {
@@ -39,7 +49,7 @@ func (datastoreDao DatastoreDao) WriteCelebrityTweets(tweets []Tweet) (err error
 	for i, _ := range tweets {
 		keys[i] = datastore.NewIncompleteKey(datastoreDao.Ctx, datastoreKind, nil)
 	}
-	_, err = datastore.PutMulti(datastoreDao.Ctx, keys, tweets)
+	_, err = datastoreDao.DatastoreClient.PutMulti(datastoreDao.Ctx, keys, tweets)
 	return
 }
 
@@ -49,10 +59,9 @@ func (datastoreDao DatastoreDao) GetCelebrityTweets(celebrityName string) (tweet
 	err error) {
 	q := datastore.NewQuery(datastoreKind).
 		Filter("CelebrityName = ", celebrityName).
-		Project("Id", "Score").
 		Order("Score")
 	var results []Tweet
-	if _, err = q.GetAll(datastoreDao.Ctx, &results); err != nil {
+	if _, err = datastoreDao.DatastoreClient.GetAll(datastoreDao.Ctx, q, &results); err != nil {
 		return
 	}
 	tweetSet := make(map[int64]bool)
@@ -70,11 +79,11 @@ func (datastoreDao DatastoreDao) DeleteAllTweetsForCelebrity(celebrityName strin
 	q := datastore.NewQuery(datastoreKind).
 		Filter("CelebrityName = ", celebrityName).
 		KeysOnly()
-	keys, err := q.GetAll(datastoreDao.Ctx, nil)
+	keys, err := datastoreDao.DatastoreClient.GetAll(datastoreDao.Ctx, q, nil)
 	if err != nil {
 		return
 	}
-	err = datastore.DeleteMulti(datastoreDao.Ctx, keys)
+	err = datastoreDao.DatastoreClient.DeleteMulti(datastoreDao.Ctx, keys)
 	return
 }
 
