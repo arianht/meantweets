@@ -4,8 +4,17 @@ go:
   - 1.6
 
 install:
-  - go get -t ./...
+  # If the SDK is not already cached, download it and unpack it.
+  - if [ ! -d ${HOME}/google-cloud-sdk ]; then
+    curl https://sdk.cloud.google.com | bash;
+    fi
+
+  # Start the datastore emulator.
   - gcloud beta emulators datastore start --no-legacy
+
+  # Install deps.
+  - go get -t ./...
+
 
 script:
   - go test -v ./...
