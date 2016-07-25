@@ -1,9 +1,10 @@
-application: meantweets-1381
-version: v1
 runtime: go
-api_version: go1
 vm: true
 
 handlers:
+- url: /.*
+  script: IGNORED
+  secure: always
+
 - url: /.*
   script: _go_app
