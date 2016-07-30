@@ -10,7 +10,7 @@ install:
       curl https://sdk.cloud.google.com | bash;
     fi
 
-  - bash
+  - source /home/travis/.bashrc
 
   # Start the datastore emulator.
   - gcloud beta emulators datastore start --no-legacy
