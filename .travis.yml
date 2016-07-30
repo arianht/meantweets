@@ -12,7 +12,7 @@ install:
     fi
 
   # Start the datastore emulator.
-  - /home/travis/google-cloud-sdk/bin/gcloud beta emulators datastore start --no-legacy
+  - /home/travis/google-cloud-sdk/bin/gcloud beta emulators datastore start --no-legacy &
 
   # Install deps.
   - go get -t ./...
