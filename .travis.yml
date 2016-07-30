@@ -10,6 +10,8 @@ install:
       curl https://sdk.cloud.google.com | bash;
     fi
 
+  - bash
+
   # Start the datastore emulator.
   - gcloud beta emulators datastore start --no-legacy
 
