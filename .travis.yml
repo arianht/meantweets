@@ -6,6 +6,7 @@ go:
 install:
   # If the SDK is not already cached, download it and unpack it.
   - export CLOUDSDK_CORE_DISABLE_PROMPTS=1
+  - export CLOUDSDK_CORE_PROJECT=meantweets-1381
   - if [ ! -d ${HOME}/google-cloud-sdk ]; then
       curl https://sdk.cloud.google.com | bash;
     fi
