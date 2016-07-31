@@ -128,7 +128,7 @@ module.exports = {
        */
       {
         test: /\.ts$/,
-        loader: 'awesome-typescript-loader',
+        loaders: ['awesome-typescript-loader', 'angular2-template-loader'],
         exclude: [/\.(spec|e2e)\.ts$/]
       },
 
@@ -150,7 +150,7 @@ module.exports = {
        */
       {
         test: /\.css$/,
-        loader: 'raw-loader'
+        loader: ['to-string-loader', 'css-loader']
       },
 
       /* Raw loader support for *.html

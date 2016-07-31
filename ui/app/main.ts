@@ -1,13 +1,13 @@
 import { bootstrap } from '@angular/platform-browser-dynamic';
 import { ENV_PROVIDERS } from './platform/environment';
-import { ROUTER_PROVIDERS } from '@angular/router-deprecated';
+import { appRouterProviders } from './app.routes';
 
 import { AppComponent } from './app.component';
 
 export function main(initialHmrState?: any): Promise<any> {
   return bootstrap(AppComponent, [
       ...ENV_PROVIDERS,
-      ROUTER_PROVIDERS
+      appRouterProviders
   ]).catch(err => console.error(err));
 }
 

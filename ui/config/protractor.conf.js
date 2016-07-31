@@ -6,8 +6,8 @@ exports.config = {
 
   // use `npm run e2e`
   specs: [
-    helpers.root('src/**/**.e2e.ts'),
-    helpers.root('src/**/*.e2e.ts')
+    helpers.root('app/**/**.e2e.ts'),
+    helpers.root('app/**/*.e2e.ts')
   ],
   exclude: [],
 
@@ -34,8 +34,6 @@ exports.config = {
   onPrepare: function() {
     browser.ignoreSynchronization = true;
   },
-
-  seleniumServerJar: 'node_modules/protractor/selenium/selenium-server-standalone-2.52.0.jar',
 
   /**
    * Angular 2 configuration

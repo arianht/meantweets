@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
+import { ROUTER_DIRECTIVES } from '@angular/router';
 import { MD_BUTTON_DIRECTIVES } from '@angular2-material/button';
 import { MD_TOOLBAR_DIRECTIVES } from '@angular2-material/toolbar';
 
 import { CelebrityService } from './celebrities/celebrity.service';
-import { CelebrityListComponent } from './celebrities/celebrity-list.component';
 
 @Component({
   selector: 'my-app',
@@ -26,14 +25,6 @@ import { CelebrityListComponent } from './celebrities/celebrity-list.component';
     <router-outlet>
   `
 })
-@RouteConfig([
-  {
-    path: '/celebrty-list',
-    name: 'CelebrityList',
-    component: CelebrityListComponent,
-    useAsDefault: true
-  }
-])
 export class AppComponent {
   constructor() {
   }
