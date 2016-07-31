@@ -74,3 +74,23 @@ func TestCrawlEndpoint(t *testing.T) {
 		t.Errorf("Expected body to be OK, but was %v", response)
 	}
 }
+
+func TestRootEndpoint(t *testing.T) {
+	request, _ := http.NewRequest("GET", "/", nil)
+	recorder := httptest.NewRecorder()
+	rootHandler(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Errorf("Expected status to be OK, but was %v", recorder.Code)
+	}
+}
+
+func TestRandomEndpoint(t *testing.T) {
+	request, _ := http.NewRequest("GET", "/random", nil)
+	recorder := httptest.NewRecorder()
+	rootHandler(recorder, request)
+
+	if recorder.Code != http.StatusSeeOther {
+		t.Errorf("Expected status to be SeeOther, but was %v", recorder.Code)
+	}
+}

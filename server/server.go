@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/arianht/meantweets/crawl"
 	"github.com/arianht/meantweets/database"
@@ -30,12 +31,23 @@ func (contextHandler ContextHandler) ServeHTTP(writer http.ResponseWriter, reque
 }
 
 func main() {
+	http.HandleFunc("/", rootHandler)
 	http.Handle("/test", ContextHandler{testHandler})
 	http.Handle("/crawl", ContextHandler{crawlHandler})
 	http.Handle("/get_celebrities", ContextHandler{celebritiesHandler})
 	http.Handle("/get_tweets", ContextHandler{tweetsHandler})
-	http.Handle("/", http.FileServer(http.Dir("dist")))
 	appengine.Main()
+}
+
+func rootHandler(writer http.ResponseWriter, r *http.Request) {
+	fileHandler := http.FileServer(http.Dir("dist"))
+
+	// Serve root or files with extensions. Everything else is redirected to root.
+	if r.URL.Path == "/" || strings.Contains(r.URL.Path, ".") {
+		fileHandler.ServeHTTP(writer, r)
+	} else {
+		http.Redirect(writer, r, "/", http.StatusSeeOther)
+	}
 }
 
 func testHandler(ctx context.Context, writer http.ResponseWriter, r *http.Request) {
