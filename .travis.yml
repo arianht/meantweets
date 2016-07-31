@@ -4,6 +4,7 @@ go:
 before_install:
 - openssl aes-256-cbc -K $encrypted_de7a60f8584a_key -iv $encrypted_de7a60f8584a_iv
   -in MeanTweets-649a4f6fdca0.json.enc -out MeanTweets-649a4f6fdca0.json -d
+- if [[ `npm -v` != 3* ]]; then npm i -g npm@3; fi
 install:
 - export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/MeanTweets-649a4f6fdca0.json
 - export CLOUDSDK_CORE_DISABLE_PROMPTS=1
