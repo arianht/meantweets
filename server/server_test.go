@@ -40,7 +40,13 @@ func TestGetTweetsEndpoint(t *testing.T) {
 
 	expectedResponse, _ := json.Marshal(tweetsWithoutName)
 	if response := recorder.Body.String(); response != string(expectedResponse) {
-		t.Errorf("Expected body to be %v, but was %v", string(expectedResponse), string(response))
+		t.Errorf("Expected body to be %v, but was %v",
+			string(expectedResponse), string(response))
+	}
+	expectedContentType := "application/json"
+	if contentType := recorder.Header().Get("Content-Type"); contentType != expectedContentType {
+		t.Errorf("Expected Content-Type to be %v, but was %v",
+			string(expectedContentType), string(contentType))
 	}
 }
 
@@ -54,6 +60,11 @@ func TestGetCelebritiesEndpoint(t *testing.T) {
 	expectedResponse, _ := json.Marshal(celebrities)
 	if response := recorder.Body.String(); response != string(expectedResponse) {
 		t.Errorf("Expected body to be %v, but was %v", string(expectedResponse), string(response))
+	}
+	expectedContentType := "application/json"
+	if contentType := recorder.Header().Get("Content-Type"); contentType != expectedContentType {
+		t.Errorf("Expected Content-Type to be %v, but was %v",
+			string(expectedContentType), string(contentType))
 	}
 }
 

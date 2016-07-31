@@ -30,6 +30,10 @@ func (contextHandler ContextHandler) ServeHTTP(writer http.ResponseWriter, reque
 	contextHandler.Handle(ctx, writer, request)
 }
 
+func setJSONContentTypeHeader(writer http.ResponseWriter) {
+	writer.Header().Set("Content-Type", "application/json")
+}
+
 func main() {
 	http.HandleFunc("/", rootHandler)
 	http.Handle("/test", ContextHandler{testHandler})
@@ -96,11 +100,17 @@ func tweetsHandler(ctx context.Context, writer http.ResponseWriter, r *http.Requ
 		tweets[i].CelebrityName = ""
 	}
 	result, _ := json.Marshal(tweets)
+
+	setJSONContentTypeHeader(writer)
+
 	writer.Write(result)
 }
 
 func celebritiesHandler(ctx context.Context, writer http.ResponseWriter, r *http.Request) {
 	result, _ := json.Marshal(celebrities)
+
+	setJSONContentTypeHeader(writer)
+
 	writer.Write(result)
 }
 
