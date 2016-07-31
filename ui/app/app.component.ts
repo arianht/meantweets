@@ -4,6 +4,7 @@ import { MD_BUTTON_DIRECTIVES } from '@angular2-material/button';
 import { MD_TOOLBAR_DIRECTIVES } from '@angular2-material/toolbar';
 
 import { CelebrityService } from './celebrities/celebrity.service';
+import { MeanTweetService } from './tweets/mean-tweet.service';
 
 @Component({
   selector: 'my-app',
@@ -13,7 +14,8 @@ import { CelebrityService } from './celebrities/celebrity.service';
     MD_TOOLBAR_DIRECTIVES
   ],
   providers: [
-    CelebrityService
+    CelebrityService,
+    MeanTweetService
   ],
   // styles: [
     // require('normalize.css'),

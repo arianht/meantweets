@@ -1,4 +1,6 @@
 import { bootstrap } from '@angular/platform-browser-dynamic';
+import { HTTP_PROVIDERS } from '@angular/http';
+
 import { ENV_PROVIDERS } from './platform/environment';
 import { appRouterProviders } from './app.routes';
 
@@ -7,7 +9,8 @@ import { AppComponent } from './app.component';
 export function main(initialHmrState?: any): Promise<any> {
   return bootstrap(AppComponent, [
       ...ENV_PROVIDERS,
-      appRouterProviders
+      appRouterProviders,
+      HTTP_PROVIDERS
   ]).catch(err => console.error(err));
 }
 
