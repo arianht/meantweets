@@ -53,7 +53,8 @@ func (analyzer *simpleSentimentAnalyzer) GetScoreForTweet(tweet string) int32 {
 
 // NewSentimentAnalyzer returns a new simple sentiment analyzer.
 func NewSentimentAnalyzer() (analyzer SentimentAnalyzer, err error) {
-	model, err := sentiment.Train()
+	// Restore the pre-trained model.
+	model, err := sentiment.Restore()
 	if err != nil {
 		return
 	}
