@@ -17,6 +17,8 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
 
+require('./dependencies/widgets');
+
 if ('production' === ENV) {
   // Production
 

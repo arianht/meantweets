@@ -1,11 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MD_CARD_DIRECTIVES } from '@angular2-material/card';
 import { MD_GRID_LIST_DIRECTIVES } from '@angular2-material/grid-list';
 
-import { Observable } from 'rxjs/Observable';
-
-import { MeanTweet } from './mean-tweet';
 import { MeanTweetService } from './mean-tweet.service';
 
 @Component({
@@ -14,27 +11,36 @@ import { MeanTweetService } from './mean-tweet.service';
     MD_CARD_DIRECTIVES
   ],
   template: `
-    <h2>Mean Tweets</h2>
-    <ul>
-      <li *ngFor="let meanTweet of meanTweets | async">
-        {{meanTweet.id}}
-      </li>
-    </ul>
+    <h2>Mean Tweets for {{celebrityName.split('+').join(' ')}}</h2>
   `
 })
-export class MeanTweetListComponent implements OnInit {
-  meanTweets: Observable<MeanTweet[]>;
+export class MeanTweetListComponent implements OnInit, OnDestroy {
+  celebrityName: string;
+  private meanTweetsUnsub;
 
   constructor(
     private route: ActivatedRoute,
-    private meanTweetService: MeanTweetService
+    private meanTweetService: MeanTweetService,
+    private elementRef: ElementRef
   ) {
   }
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      let celebrityName = (<any> params).celebrityName;
-      this.meanTweets = this.meanTweetService.getMeanTweetsForCelebrity(celebrityName);
+      this.celebrityName = (<any> params).celebrityName;
+      this.meanTweetsUnsub = this.meanTweetService.getMeanTweetsForCelebrity(this.celebrityName)
+          .subscribe(
+            tweets => {
+              tweets.forEach(tweet => {
+                twttr.widgets.createTweet(tweet.id, this.elementRef.nativeElement, {}).then();
+              });
+            },
+            err => console.error(err)
+          );
     });
+  }
+
+  ngOnDestroy() {
+    this.meanTweetsUnsub.unsubscribe();
   }
 }

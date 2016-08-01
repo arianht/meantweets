@@ -29,7 +29,7 @@ type DatastoreDao struct {
 // Tweet is an entity for storing data in the datastore.
 type Tweet struct {
 	CelebrityName string `json:",omitempty"`
-	Id            int64
+	Id            int64  `json:",string"`
 	Score         int32
 }
 

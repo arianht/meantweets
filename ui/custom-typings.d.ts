@@ -34,6 +34,8 @@ declare module "*";
 declare var ENV: string;
 declare var HMR: boolean;
 
+declare var twttr: any;
+
 interface GlobalEnvironment {
   ENV;
   HMR;
