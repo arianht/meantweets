@@ -1,0 +1,6 @@
+# Deploy with 'gcloud app deploy cron.yaml'
+
+cron:
+- description: Hourly Crawl
+  url: /crawl
+  schedule: every 1 hours

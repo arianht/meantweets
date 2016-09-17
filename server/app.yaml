@@ -1,6 +1,5 @@
 runtime: go
 vm: true
-instance_class: B1
 manual_scaling:
   instances: 1
 
@@ -13,6 +12,10 @@ handlers:
 - url: /.*
   script: IGNORED
   secure: always
+
+- url: /crawl
+  script: _go_app
+  login: admin
 
 - url: /.*
   script: _go_app
