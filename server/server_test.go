@@ -34,7 +34,7 @@ func TestGetTweetsEndpoint(t *testing.T) {
 	// the write won't be done in time for the read.
 	time.Sleep(2 * time.Second)
 
-	request, _ := http.NewRequest("GET", "/get_tweets?celebrity=test", nil)
+	request, _ := http.NewRequest("GET", "/api/get_tweets?celebrity=test", nil)
 	recorder := httptest.NewRecorder()
 	tweetsHandler(ctx, recorder, request)
 
@@ -53,7 +53,7 @@ func TestGetTweetsEndpoint(t *testing.T) {
 func TestGetCelebritiesEndpoint(t *testing.T) {
 	ctx := context.Background()
 
-	request, _ := http.NewRequest("GET", "/get_celebrities", nil)
+	request, _ := http.NewRequest("GET", "/api/get_celebrities", nil)
 	recorder := httptest.NewRecorder()
 	celebritiesHandler(ctx, recorder, request)
 

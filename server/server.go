@@ -38,8 +38,8 @@ func main() {
 	http.HandleFunc("/", rootHandler)
 	http.Handle("/test", ContextHandler{testHandler})
 	http.Handle("/crawl", ContextHandler{crawlHandler})
-	http.Handle("/get_celebrities", ContextHandler{celebritiesHandler})
-	http.Handle("/get_tweets", ContextHandler{tweetsHandler})
+	http.Handle("/api/get_celebrities", ContextHandler{celebritiesHandler})
+	http.Handle("/api/get_tweets", ContextHandler{tweetsHandler})
 	appengine.Main()
 }
 
