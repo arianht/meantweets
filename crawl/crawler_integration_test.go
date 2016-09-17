@@ -28,9 +28,8 @@ func TestRealCrawl(t *testing.T) {
 
 	// Sadly, App Engine Datastore takes time to fully write. Without this sleep,
 	// the write won't be done in time for the read.
-	time.Sleep(2 * time.Second)
+	time.Sleep(4 * time.Second)
 
-	fmt.Println("Printing out results from the Crawler Integration Test")
 	for _, celebrity := range celebrities {
 		tweets, err := twitterCrawler.Dao.GetCelebrityTweets(celebrity)
 		if err != nil {
@@ -40,9 +39,7 @@ func TestRealCrawl(t *testing.T) {
 		if len(tweets) != maxTweets {
 			t.Errorf("Expected %d tweets for celebrity %v in database, but was %v.", maxTweets, celebrity, len(tweets))
 		}
-		printCelebrityResults(celebrity, tweets)
 	}
-	fmt.Println("Crawler integration test finished. Manually verify results.")
 }
 
 func printCelebrityResults(celebrity string, tweets []database.Tweet) {
