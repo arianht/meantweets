@@ -5,8 +5,8 @@ operations through this package.
 package database
 
 import (
+	"cloud.google.com/go/datastore"
 	"golang.org/x/net/context"
-	"google.golang.org/cloud/datastore"
 )
 
 const (
