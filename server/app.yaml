@@ -9,13 +9,13 @@ resources:
   disk_size_gb: 10
 
 handlers:
-- url: /.*
-  script: IGNORED
-  secure: always
-
 - url: /crawl
   script: _go_app
   login: admin
+
+- url: /.*
+  script: IGNORED
+  secure: always
 
 - url: /.*
   script: _go_app
